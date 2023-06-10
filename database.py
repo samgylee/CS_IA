@@ -142,7 +142,7 @@ while True:
             rank_students_data = rank_students()
             window["ranked-students-table"].update(values=rank_students_data)
         except ValueError:
-            sg.popup_error("Invalid grade! Please enter a numeric value.")
+            sg.popup_error("Invalid Grade Input Type. Please type in Integer only.")
 
     if event == "students-table":
         selected_row = values["students-table"]
