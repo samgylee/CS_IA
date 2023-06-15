@@ -1,13 +1,11 @@
 import PySimpleGUI as sg
 
-# Global variables
-students_data = []
-
-# Function to save data to a file.
+# Function to save data to a file
 def save_data_to_file(data):
     with open("data.txt", "w") as file:
         for row in data:
             file.write(",".join(row) + "\n")
+
 
 # Function to load data from a file
 def load_data_from_file():
@@ -19,21 +17,21 @@ def load_data_from_file():
     except FileNotFoundError:
         return []
 
+
 # Function to update the total grade and letter grade for all students
 def update_grades():
     for row in students_data:
-        try:
-            homework_grade = int(row[1])
-            midterm_grade = int(row[2])
-            final_grade = int(row[3])
-            total_grade = homework_grade + midterm_grade + final_grade
-            letter_grade = convert_to_letter_grade(total_grade)
-            row[4] = str(total_grade)
-            row[5] = letter_grade
-        except ValueError:
-            pass
+        homework_grade = int(row[1])
+        midterm_grade = int(row[2])
+        final_grade = int(row[3])
+        total_grade = homework_grade + midterm_grade + final_grade
+        letter_grade = convert_to_letter_grade(total_grade)
+        row.append(str(total_grade))
+        row.append(letter_grade)
 
 # Function to convert total grade to letter grade
+
+
 def convert_to_letter_grade(total_grade):
     if total_grade >= 90:
         return "A"
@@ -48,11 +46,22 @@ def convert_to_letter_grade(total_grade):
     else:
         return "F"
 
+
 # Function to rank students based on total grades
 def rank_students():
     students_data.sort(key=lambda x: int(x[4]), reverse=True)
-    students_data_with_rank = [[str(index+1)] + row for index, row in enumerate(students_data)]
-    return students_data_with_rank
+
+
+students_data = load_data_from_file()
+
+update_grades()
+
+rank_students()
+
+tab_3_list = []
+
+for index, row in enumerate(students_data):
+    tab_3_list.append([str(index+1), row[0], row[4], row[5]])
 
 # Layout for Tab 1
 tab1_layout = [
@@ -68,10 +77,10 @@ tab2_layout = [
     [
         sg.Table(
             values=students_data,
-            headings=["Name", "Homework Grade", "Midterm Grade", "Final Grade", "Total Grade", "Letter Grade"],
+            headings=["Name", "Homework Grade", "Midterm Grade", "Final Grade", "Total Grade"],
             key="students-table",
             col_widths=[20, 15, 15, 15, 15, 15],
-            justification="left",
+            justification="center",
             num_rows=10,
             enable_events=True,
             bind_return_key=True,
@@ -87,16 +96,16 @@ tab2_layout = [
 tab3_layout = [
     [
         sg.Table(
-            values=[],
+            values=tab_3_list,
             headings=["Rank", "Name", "Total Grade", "Letter Grade"],
             key="ranked-students-table",
+            justification="center",
             col_widths=[10, 20, 15, 15],
-            justification="left",
             num_rows=10,
             enable_events=True,
             bind_return_key=True,
             auto_size_columns=False,
-            display_row_numbers=False,
+            display_row_numbers=False,  # we want to rank the students not in row #
             font=("Helvetica", 16)  # Adjust the font size as per your preference
         )
     ]
@@ -109,17 +118,16 @@ layout = [
     ])],
 ]
 
-window = sg.Window('Tabbed Window', layout)
+window = sg.Window('Student DB', layout)
 
 # Load data from file
 students_data = load_data_from_file()
 
-# Update total grades and letter grades
-update_grades()
-
 # Event loop
 while True:
     event, values = window.read()
+    print(values)
+
     if event == sg.WINDOW_CLOSED:
         # Save data to file when closing the window
         save_data_to_file(students_data)
@@ -130,19 +138,32 @@ while True:
         homework_grade = values["homework-grade"]
         midterm_grade = values["midterm-grade"]
         final_grade = values["final-grade"]
+
         try:
             total_grade = int(homework_grade) + int(midterm_grade) + int(final_grade)
-            letter_grade = convert_to_letter_grade(total_grade)
-            students_data.append([name, homework_grade, midterm_grade, final_grade, str(total_grade), letter_grade])
-            window["students-table"].update(values=students_data)
-            window["count-name"].update("")  # Clear the name input field
-            window["homework-grade"].update("")  # Clear the homework grade input field
-            window["midterm-grade"].update("")  # Clear the midterm grade input field
-            window["final-grade"].update("")  # Clear the final grade input field
-            rank_students_data = rank_students()
-            window["ranked-students-table"].update(values=rank_students_data)
+            if 0 <= total_grade <= 100:
+                letter_grade = convert_to_letter_grade(total_grade)
+                students_data.append([name, homework_grade, midterm_grade, final_grade, str(total_grade), letter_grade])
+                window["students-table"].update(values=students_data)
+                window["count-name"].update("")  # Clear the name input field
+                window["homework-grade"].update("")  # Clear the homework grade input field
+                window["midterm-grade"].update("")  # Clear the midterm grade input field
+                window["final-grade"].update("")  # Clear the final grade input field
+            else:
+                sg.popup_ok(
+                    "Total grade needs to be between 0 to 100",
+                    title="Error",
+                    button_color="red",
+                )
+
         except ValueError:
-            sg.popup_error("Invalid Grade Input Type. Please type in Integer only.")
+            sg.popup_ok(
+                "Please type in Integer only.",
+                title="Error",
+                button_color="red",
+            )
+
+            pass
 
     if event == "students-table":
         selected_row = values["students-table"]
@@ -165,7 +186,12 @@ while True:
             if selected_row_index < len(students_data):
                 removed_row = students_data.pop(selected_row_index)
                 window["students-table"].update(values=students_data)
-                rank_students_data = rank_students()
-                window["ranked-students-table"].update(values=rank_students_data)
+
+    update_grades()
+
+    rank_students()
+
+    window["ranked-students-table"].update(values=[[str(index+1),row[0], row[4], row[5]] for index, row in enumerate(students_data)]
+        )
 
 window.close()
