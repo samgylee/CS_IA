@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 
 # Function to save data to a file
+
 def save_data_to_file(data):
     with open("data.txt", "w") as file:
         for row in data:
@@ -62,7 +63,7 @@ tab_3_list = []
 
 for index, row in enumerate(students_data):
     tab_3_list.append([str(index+1), row[0], row[4], row[5]])
-
+    print(tab_3_list)
 # Layout for Tab 1
 tab1_layout = [
     [sg.Text('Student name'), sg.InputText(key="count-name")],
@@ -89,7 +90,8 @@ tab2_layout = [
             font=("Helvetica", 16)
         )
     ],
-    [sg.Button("-", key="delete-button")]
+    [sg.Button("-", key="delete-button"), sg.Button("edit", key="edit-students")]
+
 ]
 
 # Layout for Tab 3
@@ -187,6 +189,9 @@ while True:
                 removed_row = students_data.pop(selected_row_index)
                 window["students-table"].update(values=students_data)
 
+    if event == "edit-students":
+        selected_row = values["students-table"]
+        print(selected_row)
     update_grades()
 
     rank_students()
