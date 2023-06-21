@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+import copy
 
 # Function to save data to a file
 
@@ -18,17 +19,6 @@ def load_data_from_file():
     except FileNotFoundError:
         return []
 
-
-# Function to update the total grade and letter grade for all students
-def update_grades():
-    for row in students_data:
-        homework_grade = int(row[1])
-        midterm_grade = int(row[2])
-        final_grade = int(row[3])
-        total_grade = homework_grade + midterm_grade + final_grade
-        letter_grade = convert_to_letter_grade(total_grade)
-        row.append(str(total_grade))
-        row.append(letter_grade)
 
 # Function to convert total grade to letter grade
 
@@ -50,20 +40,21 @@ def convert_to_letter_grade(total_grade):
 
 # Function to rank students based on total grades
 def rank_students():
-    students_data.sort(key=lambda x: int(x[4]), reverse=True)
+    rank_students_list = copy.deepcopy(students_data)
+    rank_students_list.sort(key=lambda x: int(x[4]), reverse=True,)
+    return rank_students_list
 
 
 students_data = load_data_from_file()
 
-update_grades()
 
-rank_students()
+ranking_1 = rank_students()
 
 tab_3_list = []
 
-for index, row in enumerate(students_data):
+for index, row in enumerate(ranking_1):
     tab_3_list.append([str(index+1), row[0], row[4], row[5]])
-    print(tab_3_list)
+
 # Layout for Tab 1
 tab1_layout = [
     [sg.Text('Student name'), sg.InputText(key="count-name")],
@@ -128,7 +119,7 @@ students_data = load_data_from_file()
 # Event loop
 while True:
     event, values = window.read()
-    print(values)
+    print(event, values)
 
     if event == sg.WINDOW_CLOSED:
         # Save data to file when closing the window
@@ -151,6 +142,8 @@ while True:
                 window["homework-grade"].update("")  # Clear the homework grade input field
                 window["midterm-grade"].update("")  # Clear the midterm grade input field
                 window["final-grade"].update("")  # Clear the final grade input field
+                print(students_data)
+
             else:
                 sg.popup_ok(
                     "Total grade needs to be between 0 to 100",
@@ -192,11 +185,12 @@ while True:
     if event == "edit-students":
         selected_row = values["students-table"]
         print(selected_row)
-    update_grades()
 
-    rank_students()
 
-    window["ranked-students-table"].update(values=[[str(index+1),row[0], row[4], row[5]] for index, row in enumerate(students_data)]
+
+    ranking_2 = rank_students()
+
+    window["ranked-students-table"].update(values=[[str(index+1),row[0], row[4], row[5]] for index, row in enumerate(ranking_2)]
         )
 
 window.close()
