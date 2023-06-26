@@ -2,12 +2,15 @@ import PySimpleGUI as sg
 import copy
 # Function to save data to a file
 
+
 def save_data_to_file(data):
     with open("data.txt", "w") as file:
         for row in data:
             file.write(",".join(row) + "\n")
 
 
+
+sg.theme('LightBlue2')
 # Function to load data from a file
 def load_data_from_file():
     try:
