@@ -108,13 +108,12 @@ tab3_layout = [
 ]
 tab4_layout = [
 
-
 ]
 
 # Create the main window with tabs
 layout = [
     [sg.TabGroup([
-        [sg.Tab('Tab 1', tab1_layout), sg.Tab('Tab 2', tab2_layout), sg.Tab('Tab 3', tab3_layout)]
+        [sg.Tab('Add Students', tab1_layout), sg.Tab('View Students', tab2_layout), sg.Tab('Student Ranking', tab3_layout), sg.Tab('Graph', tab4_layout)]
     ])],
 ]
 
