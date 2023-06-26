@@ -1,6 +1,5 @@
 import PySimpleGUI as sg
 import copy
-
 # Function to save data to a file
 
 def save_data_to_file(data):
@@ -18,7 +17,6 @@ def load_data_from_file():
             return data
     except FileNotFoundError:
         return []
-
 
 # Function to convert total grade to letter grade
 
@@ -55,12 +53,14 @@ tab_3_list = []
 for index, row in enumerate(ranking_1):
     tab_3_list.append([str(index+1), row[0], row[4], row[5]])
 
+
+
 # Layout for Tab 1
 tab1_layout = [
-    [sg.Text('Student name'), sg.InputText(key="count-name")],
-    [sg.Text('Homework grade'), sg.InputText(key="homework-grade")],
-    [sg.Text('Midterm grade'), sg.InputText(key="midterm-grade")],
-    [sg.Text('Final grade'), sg.InputText(key="final-grade")],
+    [sg.Text('Student name'),sg.InputText(key="count-name", size=(18,0))],
+    [sg.Text('Homework grade'),sg.InputText(key="homework-grade",size=(15,0))],
+    [sg.Text('Midterm grade'),sg.InputText(key="midterm-grade",size=(17,0))],
+    [sg.Text('Final grade'),sg.InputText(key="final-grade",size=(19,0), )],
     [sg.Button("Add Student")]
 ]
 
@@ -102,6 +102,10 @@ tab3_layout = [
             font=("Helvetica", 16)  # Adjust the font size as per your preference
         )
     ]
+]
+tab4_layout = [
+
+
 ]
 
 # Create the main window with tabs
@@ -185,7 +189,6 @@ while True:
     if event == "edit-students":
         selected_row = values["students-table"]
         print(selected_row)
-
 
 
     ranking_2 = rank_students()
