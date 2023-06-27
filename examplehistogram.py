@@ -18,7 +18,7 @@ def create_bar_graph(grade, student_numbers):
 
 
 layout = [[sg.Text('Bar Graph')],
-          [sg.Canvas(size00, 500), key='-CANVAS-')],
+          [sg.Canvas(size= (900,500),key=('-CANVAS-'))],
           [sg.Exit()]]
 
 
@@ -29,13 +29,13 @@ def draw_figure(canvas, figure):
     return figure_canvas_agg
 
 
-window = sg.Window('PySimpleGUI + MatPlotLib Bar Graphs', layout, finalize=True, element_justification='center')
+histogram_window = sg.Window('PySimpleGUI + MatPlotLib Bar Graphs', layout, finalize=True, element_justification='center')
 
-draw_figure(window['-CANVAS-'].TKCanvas, create_bar_graph(grade, student_numbers))
+draw_figure(histogram_window['-CANVAS-'].TKCanvas, create_bar_graph(grade, student_numbers))
 
 while True:
-    event, values = window.read()
+    event, values = histogram_window.read()
     if event == sg.WIN_CLOSED or event == 'Exit':
         break
 
-window.close()
+histogram_window.close()

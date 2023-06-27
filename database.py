@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
 import copy
+import password_window
 # Function to save data to a file
 
 
@@ -111,21 +112,22 @@ tab4_layout = [
 ]
 
 # Create the main window with tabs
-layout = [
+
+
+data_layout = [
     [sg.TabGroup([
         [sg.Tab('Add Students', tab1_layout), sg.Tab('View Students', tab2_layout), sg.Tab('Student Ranking', tab3_layout), sg.Tab('Graph', tab4_layout)]
     ])],
 ]
 
-window = sg.Window('Student DB', layout)
+data_window = sg.Window("Student DB", data_layout, modal=True)
 
 # Load data from file
 students_data = load_data_from_file()
 
 # Event loop
 while True:
-    event, values = window.read()
-    print(event, values)
+    event, values = data_window.read()
 
     if event == sg.WINDOW_CLOSED:
         # Save data to file when closing the window
@@ -143,11 +145,11 @@ while True:
             if 0 <= total_grade <= 100:
                 letter_grade = convert_to_letter_grade(total_grade)
                 students_data.append([name, homework_grade, midterm_grade, final_grade, str(total_grade), letter_grade])
-                window["students-table"].update(values=students_data)
-                window["count-name"].update("")  # Clear the name input field
-                window["homework-grade"].update("")  # Clear the homework grade input field
-                window["midterm-grade"].update("")  # Clear the midterm grade input field
-                window["final-grade"].update("")  # Clear the final grade input field
+                data_window["students-table"].update(values=students_data)
+                data_window["count-name"].update("")  # Clear the name input field
+                data_window["homework-grade"].update("")  # Clear the homework grade input field
+                data_window["midterm-grade"].update("")  # Clear the midterm grade input field
+                data_window["final-grade"].update("")  # Clear the final grade input field
                 print(students_data)
 
             else:
@@ -175,10 +177,10 @@ while True:
                 homework_grade = students_data[selected_row_index][1]
                 midterm_grade = students_data[selected_row_index][2]
                 final_grade = students_data[selected_row_index][3]
-                window["count-name"].update(name)  # Update the name input field
-                window["homework-grade"].update(homework_grade)  # Update the homework grade input field
-                window["midterm-grade"].update(midterm_grade)  # Update the midterm grade input field
-                window["final-grade"].update(final_grade)  # Update the final grade input field
+                data_window["count-name"].update(name)  # Update the name input field
+                data_window["homework-grade"].update(homework_grade)  # Update the homework grade input field
+                data_window["midterm-grade"].update(midterm_grade)  # Update the midterm grade input field
+                data_window["final-grade"].update(final_grade)  # Update the final grade input field
 
     if event == "delete-button":
         selected_row = values["students-table"]
@@ -186,7 +188,7 @@ while True:
             selected_row_index = selected_row[0]
             if selected_row_index < len(students_data):
                 removed_row = students_data.pop(selected_row_index)
-                window["students-table"].update(values=students_data)
+                data_window["students-table"].update(values=students_data)
 
     if event == "edit-students":
         selected_row = values["students-table"]
@@ -195,7 +197,7 @@ while True:
 
     ranking_2 = rank_students()
 
-    window["ranked-students-table"].update(values=[[str(index+1),row[0], row[4], row[5]] for index, row in enumerate(ranking_2)]
+    data_window["ranked-students-table"].update(values=[[str(index+1),row[0], row[4], row[5]] for index, row in enumerate(ranking_2)]
         )
 
-window.close()
+data_window.close()
