@@ -61,10 +61,10 @@ for index, row in enumerate(ranking_1):
 
 # Layout for Tab 1
 tab1_layout = [
-    [sg.Text('Student name'),sg.InputText(key="count-name", size=(18,0))],
-    [sg.Text('Homework grade'),sg.InputText(key="homework-grade",size=(15,0))],
-    [sg.Text('Midterm grade'),sg.InputText(key="midterm-grade",size=(17,0))],
-    [sg.Text('Final grade'),sg.InputText(key="final-grade",size=(19,0), )],
+    [sg.Text('Student name'), sg.InputText(key="count-name", size=(15,0), pad=(20,0))],
+    [sg.Text('Homework grade'), sg.InputText(key="homework-grade", size=(15,0))],
+    [sg.Text('Midterm grade'), sg.InputText(key="midterm-grade", size=(15,0), pad=(17,0))],
+    [sg.Text('Final grade'), sg.InputText(key="final-grade",size=(15,0), pad=(32,0))],
     [sg.Button("Add Student")]
 ]
 
@@ -127,6 +127,7 @@ students_data = load_data_from_file()
 
 # Event loop
 while True:
+    #password_window.protect()
     event, values = data_window.read()
 
     if event == sg.WINDOW_CLOSED:

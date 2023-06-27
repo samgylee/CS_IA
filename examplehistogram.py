@@ -18,7 +18,7 @@ def create_bar_graph(grade, student_numbers):
 
 
 layout = [[sg.Text('Bar Graph')],
-          [sg.Canvas(size= (900,500),key=('-CANVAS-'))],
+          [sg.Canvas(size=(900, 500), key='-CANVAS-')],
           [sg.Exit()]]
 
 
