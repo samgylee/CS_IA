@@ -1,0 +1,11 @@
+sam,20,30,40,90,A
+luke,20,20,20,60,D
+christian,20,20,20,60,D
+james,20,30,1,51,E
+danithu,20,30,30,80,B
+paul,30,30,30,80,B
+amy,30,40,30,100,A
+kevin,30,10,40,80,B
+brandon,4,12,32,48,F
+random one,30,40,10,80,B
+random 2,20,30,30,80,B

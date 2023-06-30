@@ -1,7 +1,15 @@
 import PySimpleGUI as sg
 import copy
 import password_window
-# Function to save data to a file
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+
+def draw_figure(canvas, figure):
+    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
+    figure_canvas_agg.draw()
+    figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
+    return figure_canvas_agg
 
 
 def save_data_to_file(data):
@@ -10,9 +18,11 @@ def save_data_to_file(data):
             file.write(",".join(row) + "\n")
 
 
-
 sg.theme('LightBlue2')
+
+
 # Function to load data from a file
+
 def load_data_from_file():
     try:
         with open("data.txt", "r") as file:
@@ -57,7 +67,55 @@ tab_3_list = []
 for index, row in enumerate(ranking_1):
     tab_3_list.append([str(index+1), row[0], row[4], row[5]])
 
+student_total_grades = []  # new list
+# total grades from rank_students_list
+for row in ranking_1:
+    total_grade = row[4]
+    student_total_grades.append(total_grade)
 
+# Sort descending order
+student_total_grades.sort(reverse=True)
+
+# Print the sorted total grades
+print(student_total_grades)
+# Initialize the grade count dictionary
+grade_count = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0}
+
+# Iterate over the total grades and update the grade count
+for total_grade in student_total_grades:
+    total_grade = int(total_grade)  # Convert the total grade to an integer
+    if total_grade >= 90:
+        grade_count['A'] += 1
+    elif total_grade >= 80:
+        grade_count['B'] += 1
+    elif total_grade >= 70:
+        grade_count['C'] += 1
+    elif total_grade >= 60:
+        grade_count['D'] += 1
+    elif total_grade >= 50:
+        grade_count['E'] += 1
+    else:
+        grade_count['F'] += 1
+
+# Print the grade count# Create the student numbers list in alphabetical order
+student_numbers = [grade_count[grade] for grade in sorted(grade_count.keys())]
+#
+# # Print the student numbers list
+print(student_numbers)
+
+
+grade = ['A', 'B', 'C', 'D', 'E', 'F']
+
+
+#create a loop that will add the corresponding student numbers per grade, then create 'student numbers' array with correct positioning
+
+def create_bar_graph(grade, students_numbers):
+    plt.figure(figsize=(4, 2.5))
+    plt.bar(grade, students_numbers, color='red', width=0.4)
+    plt.title('Grade vs Student number', fontsize=10)
+    plt.xlabel('Grade', fontsize=10)
+    plt.ylabel('student number', fontsize=10)
+    return plt.gcf()
 
 # Layout for Tab 1
 tab1_layout = [
@@ -68,7 +126,9 @@ tab1_layout = [
     [sg.Button("Add Student")]
 ]
 
+
 # Layout for Tab 2
+
 tab2_layout = [
     [
         sg.Table(
@@ -89,6 +149,7 @@ tab2_layout = [
 
 ]
 
+
 # Layout for Tab 3
 tab3_layout = [
     [
@@ -108,8 +169,9 @@ tab3_layout = [
     ]
 ]
 tab4_layout = [
+          [sg.Canvas(key='-CANVAS-')]
+        ]
 
-]
 
 # Create the main window with tabs
 
@@ -121,20 +183,20 @@ data_layout = [
 ]
 
 data_window = sg.Window("Student DB", data_layout, modal=True)
-
 # Load data from file
 students_data = load_data_from_file()
 
+password_window.protect()
 # Event loop
 while True:
-    #password_window.protect()
+
     event, values = data_window.read()
 
     if event == sg.WINDOW_CLOSED:
         # Save data to file when closing the window
         save_data_to_file(students_data)
         break
-
+    draw_figure(data_window['-CANVAS-'].TKCanvas, create_bar_graph(grade, student_numbers))
     if event == "Add Student":
         name = values["count-name"]
         homework_grade = values["homework-grade"]
@@ -182,7 +244,7 @@ while True:
                 data_window["homework-grade"].update(homework_grade)  # Update the homework grade input field
                 data_window["midterm-grade"].update(midterm_grade)  # Update the midterm grade input field
                 data_window["final-grade"].update(final_grade)  # Update the final grade input field
-
+                print(students_data)
     if event == "delete-button":
         selected_row = values["students-table"]
         if selected_row:
@@ -193,12 +255,50 @@ while True:
 
     if event == "edit-students":
         selected_row = values["students-table"]
-        print(selected_row)
+        if selected_row:
+            selected_row_index = selected_row[0]
+            if selected_row_index < len(students_data):
+                name = students_data[selected_row_index][0]
+                homework_grade = students_data[selected_row_index][1]
+                midterm_grade = students_data[selected_row_index][2]
+                final_grade = students_data[selected_row_index][3]
+# pop up window to edit values
+                edit_layout = [
+                    [sg.Text('Name:'), sg.Input(key='edit-name', default_text=name)],
+                    [sg.Text('Homework Grade:'), sg.Input(key='edit-homework', default_text=homework_grade)],
+                    [sg.Text('Midterm Grade:'), sg.Input(key='edit-midterm', default_text=midterm_grade)],
+                    [sg.Text('Final Grade:'), sg.Input(key='edit-final', default_text=final_grade)],
+                    [sg.Button('Save')]
+                ]
 
+                edit_window = sg.Window('Edit Student', edit_layout)
+
+                while True:
+                    edit_event, edit_values = edit_window.read()
+
+                    if edit_event == sg.WINDOW_CLOSED:
+                        break
+
+                    if edit_event == 'Save':
+                        # Update the values in students_data with the edited values
+                        students_data[selected_row_index][0] = edit_values['edit-name']
+                        students_data[selected_row_index][1] = edit_values['edit-homework']
+                        students_data[selected_row_index][2] = edit_values['edit-midterm']
+                        students_data[selected_row_index][3] = edit_values['edit-final']
+
+                        # Update the table in Tab 2 to reflect the changes
+                        data_window['students-table'].update(values=students_data)
+
+                        break
+
+                edit_window.close()
 
     ranking_2 = rank_students()
 
     data_window["ranked-students-table"].update(values=[[str(index+1),row[0], row[4], row[5]] for index, row in enumerate(ranking_2)]
         )
+
+# Loop through the students_data and add the letter grades to the list
+
 
 data_window.close()
