@@ -173,6 +173,8 @@ tab4_layout = [
         ]
 
 
+
+
 # Create the main window with tabs
 
 
@@ -206,14 +208,22 @@ while True:
         try:
             total_grade = int(homework_grade) + int(midterm_grade) + int(final_grade)
             if 0 <= total_grade <= 100:
-                letter_grade = convert_to_letter_grade(total_grade)
-                students_data.append([name, homework_grade, midterm_grade, final_grade, str(total_grade), letter_grade])
-                data_window["students-table"].update(values=students_data)
-                data_window["count-name"].update("")  # Clear the name input field
-                data_window["homework-grade"].update("")  # Clear the homework grade input field
-                data_window["midterm-grade"].update("")  # Clear the midterm grade input field
-                data_window["final-grade"].update("")  # Clear the final grade input field
-                print(students_data)
+                if any(row[0] == name for row in students_data):
+                    sg.popup_error(
+                        "The student is already in the list",
+                        title="Error",
+                        button_color="red",
+                    )
+
+                else:
+                    letter_grade = convert_to_letter_grade(total_grade)
+                    students_data.append([name, homework_grade, midterm_grade, final_grade, str(total_grade), letter_grade])
+                    data_window["students-table"].update(values=students_data)
+                    data_window["count-name"].update("")  # Clear the name input field
+                    data_window["homework-grade"].update("")  # Clear the homework grade input field
+                    data_window["midterm-grade"].update("")  # Clear the midterm grade input field
+                    data_window["final-grade"].update("")  # Clear the final grade input field
+                    print(students_data)
 
             else:
                 sg.popup_ok(
