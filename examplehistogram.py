@@ -8,6 +8,7 @@ student_numbers = [10, 40, 20, 10, 6.9, 7, 0]
 #try coding like the guy, instead of students array, try with letter grades.
 #grades and student number on each grade
 
+
 def create_bar_graph(grade, student_numbers):
     plt.figure(figsize=(10, 7))
     plt.bar(grade, student_numbers, color='red', width=0.4)

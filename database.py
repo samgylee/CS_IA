@@ -186,7 +186,7 @@ data_window = sg.Window("Student DB", data_layout, modal=True)
 # Load data from file
 students_data = load_data_from_file()
 
-password_window.protect()
+#password_window.protect()
 # Event loop
 while True:
 
@@ -240,11 +240,6 @@ while True:
                 homework_grade = students_data[selected_row_index][1]
                 midterm_grade = students_data[selected_row_index][2]
                 final_grade = students_data[selected_row_index][3]
-                data_window["count-name"].update(name)  # Update the name input field
-                data_window["homework-grade"].update(homework_grade)  # Update the homework grade input field
-                data_window["midterm-grade"].update(midterm_grade)  # Update the midterm grade input field
-                data_window["final-grade"].update(final_grade)  # Update the final grade input field
-                print(students_data)
     if event == "delete-button":
         selected_row = values["students-table"]
         if selected_row:
@@ -280,13 +275,11 @@ while True:
                         break
 
                     if edit_event == 'Save':
-                        # Update the values in students_data with the edited values
                         students_data[selected_row_index][0] = edit_values['edit-name']
                         students_data[selected_row_index][1] = edit_values['edit-homework']
                         students_data[selected_row_index][2] = edit_values['edit-midterm']
                         students_data[selected_row_index][3] = edit_values['edit-final']
 
-                        # Update the table in Tab 2 to reflect the changes
                         data_window['students-table'].update(values=students_data)
 
                         break
