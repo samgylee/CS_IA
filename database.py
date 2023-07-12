@@ -57,6 +57,26 @@ def rank_students():
     return rank_students_list
 
 
+def grading_students(name, homework_grade, midterm_grade, final_grade, exclude_name=None):
+    try:
+        total_grade = int(homework_grade) + int(midterm_grade) + int(final_grade)
+        if 0 <= total_grade <= 100:
+            if exclude_name:
+                if any(row[0] == name and row[0] != exclude_name for row in students_data):
+                    return None
+            else:
+                if any(row[0] == name for row in students_data):
+                    return None
+
+            letter_grade = convert_to_letter_grade(total_grade)
+            return total_grade
+        else:
+            return None
+    except ValueError:
+        return None
+
+
+
 students_data = load_data_from_file()
 
 
@@ -126,7 +146,6 @@ tab1_layout = [
     [sg.Button("Add Student")]
 ]
 
-
 # Layout for Tab 2
 
 tab2_layout = [
@@ -145,7 +164,7 @@ tab2_layout = [
             font=("Helvetica", 16)
         )
     ],
-    [sg.Button("-", key="delete-button"), sg.Button("edit", key="edit-students")]
+    [sg.Button("-", key="delete-button"), sg.Button("edit", key="edit-students"), sg.Button("Sort", key="sort-button")]
 
 ]
 
@@ -199,47 +218,28 @@ while True:
         save_data_to_file(students_data)
         break
     draw_figure(data_window['-CANVAS-'].TKCanvas, create_bar_graph(grade, student_numbers))
+
     if event == "Add Student":
         name = values["count-name"]
         homework_grade = values["homework-grade"]
         midterm_grade = values["midterm-grade"]
         final_grade = values["final-grade"]
 
-        try:
-            total_grade = int(homework_grade) + int(midterm_grade) + int(final_grade)
-            if 0 <= total_grade <= 100:
-                if any(row[0] == name for row in students_data):
-                    sg.popup_error(
-                        "The student is already in the list",
-                        title="Error",
-                        button_color="red",
-                    )
-
-                else:
-                    letter_grade = convert_to_letter_grade(total_grade)
-                    students_data.append([name, homework_grade, midterm_grade, final_grade, str(total_grade), letter_grade])
-                    data_window["students-table"].update(values=students_data)
-                    data_window["count-name"].update("")  # Clear the name input field
-                    data_window["homework-grade"].update("")  # Clear the homework grade input field
-                    data_window["midterm-grade"].update("")  # Clear the midterm grade input field
-                    data_window["final-grade"].update("")  # Clear the final grade input field
-                    print(students_data)
-
-            else:
-                sg.popup_ok(
-                    "Total grade needs to be between 0 to 100",
-                    title="Error",
-                    button_color="red",
-                )
-
-        except ValueError:
-            sg.popup_ok(
-                "Please type in Integer only.",
+        total_grade = grading_students(name, homework_grade, midterm_grade, final_grade)
+        if total_grade is None:
+            sg.popup_error(
+                "Please check if your input is correct",
                 title="Error",
                 button_color="red",
             )
-
-            pass
+        else:
+            letter_grade = convert_to_letter_grade(total_grade)
+            students_data.append([name, homework_grade, midterm_grade, final_grade, str(total_grade), letter_grade])
+            data_window["students-table"].update(values=students_data)
+            data_window["count-name"].update("")  # Clear the name input field
+            data_window["homework-grade"].update("")  # Clear the homework grade input field
+            data_window["midterm-grade"].update("")  # Clear the midterm grade input field
+            data_window["final-grade"].update("")  # Clear the final grade input field
 
     if event == "students-table":
         selected_row = values["students-table"]
@@ -257,6 +257,9 @@ while True:
             if selected_row_index < len(students_data):
                 removed_row = students_data.pop(selected_row_index)
                 data_window["students-table"].update(values=students_data)
+    if event == "Sort":
+        sorted_data = sorted(students_data, key=lambda x: x[0])
+        data_window["students-table"].update(values=sorted_data)
 
     if event == "edit-students":
         selected_row = values["students-table"]
@@ -267,7 +270,6 @@ while True:
                 homework_grade = students_data[selected_row_index][1]
                 midterm_grade = students_data[selected_row_index][2]
                 final_grade = students_data[selected_row_index][3]
-# pop up window to edit values
                 edit_layout = [
                     [sg.Text('Name:'), sg.Input(key='edit-name', default_text=name)],
                     [sg.Text('Homework Grade:'), sg.Input(key='edit-homework', default_text=homework_grade)],
@@ -285,23 +287,40 @@ while True:
                         break
 
                     if edit_event == 'Save':
-                        students_data[selected_row_index][0] = edit_values['edit-name']
-                        students_data[selected_row_index][1] = edit_values['edit-homework']
-                        students_data[selected_row_index][2] = edit_values['edit-midterm']
-                        students_data[selected_row_index][3] = edit_values['edit-final']
+                        new_name = edit_values['edit-name']
+                        new_homework_grade = edit_values['edit-homework']
+                        new_midterm_grade = edit_values['edit-midterm']
+                        new_final_grade = edit_values['edit-final']
 
-                        data_window['students-table'].update(values=students_data)
+                        #convert input grades to int
+                        new_homework_grade = int(new_homework_grade)
+                        new_midterm_grade = int(new_midterm_grade)
+                        new_final_grade = int(new_final_grade)
+
+                        total_grade = grading_students(new_name, new_homework_grade, new_midterm_grade, new_final_grade,
+                                                       exclude_name=name)
+                        if total_grade is None:
+                            sg.popup_error(
+                                "Please check if your input is correct",
+                                title="Error",
+                                button_color="red",
+                            )
+                        else:
+                            students_data[selected_row_index][0] = new_name
+                            students_data[selected_row_index][1] = str(new_homework_grade)
+                            students_data[selected_row_index][2] = str(new_midterm_grade)
+                            students_data[selected_row_index][3] = str(new_final_grade)
+                            students_data[selected_row_index][4] = str(total_grade)
+                            students_data[selected_row_index][5] = convert_to_letter_grade(total_grade)
+
+                            ranking_2 = rank_students()
+                            data_window["ranked-students-table"].update(
+                                values=[[str(index + 1), row[0], row[4], row[5]] for index, row in
+                                        enumerate(ranking_2)])
+                            data_window['students-table'].update(values=students_data)
 
                         break
 
                 edit_window.close()
-
-    ranking_2 = rank_students()
-
-    data_window["ranked-students-table"].update(values=[[str(index+1),row[0], row[4], row[5]] for index, row in enumerate(ranking_2)]
-        )
-
-# Loop through the students_data and add the letter grades to the list
-
 
 data_window.close()
