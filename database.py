@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-def draw_figure(canvas, figure):
-    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
+def draw_figure(canvas, figure): #tkinter canvas widget, bargraph object plt
+    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas) # type = Class FigureCanvasTkAgg
     figure_canvas_agg.draw()
     figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
     return figure_canvas_agg
@@ -191,7 +191,7 @@ tab3_layout = [
     ]
 ]
 tab4_layout = [
-    [sg.Column([[sg.Canvas(key='-CANVAS-', size=(400, 400))]], element_justification='center', pad=(150, 100))]
+    [sg.Column([[sg.Canvas(key='bar-graph', size=(400, 400))]], element_justification='center', pad=(150, 100))]
 ]
 
 
@@ -203,13 +203,22 @@ data_layout = [
          sg.Tab('Student Ranking', tab3_layout), sg.Tab('Graph', tab4_layout)]
     ], enable_events=True, expand_x=True, expand_y=True)]]
 
-data_window = sg.Window("Student DB", data_layout, modal=True, resizable=True)
+data_window = sg.Window("Student DB", data_layout, modal=True, resizable=True, finalize=True)
 # Load data from file
 students_data = load_data_from_file()
 
+bar_graph=draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
+
+
+def update_bar_graph(bar_graph):
+    bar_graph.get_tk_widget().forget() #forgets bar_graph
+    bar_graph = draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
+    return bar_graph
+
+    #forgets the old graph and draws a new graph with the new data
+
 # password_window.protect()
 # Event loop
-histogram_window = None
 while True:
 
     event, values = data_window.read()
@@ -242,6 +251,8 @@ while True:
             data_window["midterm-grade"].update("")  # Clear the midterm grade input field
             data_window["final-grade"].update("")  # Clear the final grade input field
 
+
+
     if event == "students-table":
         selected_row = values["students-table"]
         if selected_row:
@@ -258,6 +269,7 @@ while True:
             if selected_row_index < len(students_data):
                 removed_row = students_data.pop(selected_row_index)
                 data_window["students-table"].update(values=students_data)
+
 
     if event == "sort-button":
         students_data = sorted(students_data, key=lambda x: x[0].lower())
@@ -316,15 +328,12 @@ while True:
                             students_data[selected_row_index][4] = str(total_grade)
                             students_data[selected_row_index][5] = convert_to_letter_grade(total_grade)
 
-                            ranking_2 = rank_students()
-                            data_window["ranked-students-table"].update(
-                                values=[[str(index + 1), row[0], row[4], row[5]] for index, row in
-                                        enumerate(ranking_2)])
-                            data_window['students-table'].update(values=students_data)
+
+
 
                         break
 
                 edit_window.close()
 
-    draw_figure(data_window['-CANVAS-'].TKCanvas, create_bar_graph(grade, student_numbers))
+    bar_graph = update_bar_graph(bar_graph)
 data_window.close()
