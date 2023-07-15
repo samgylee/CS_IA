@@ -134,7 +134,7 @@ grade = ['A', 'B', 'C', 'D', 'E', 'F']
 #create a loop that will add the corresponding student numbers per grade, then create 'student numbers' array with correct positioning
 
 def create_bar_graph(grade, student_numbers):
-    plt.figure(figsize=(4, 2.5))
+    plt.figure(figsize=(4, 4))
     plt.bar(grade, student_numbers, color='red', width=0.4)
     plt.title('Grade vs Student number', fontsize=10)
     plt.xlabel('Grade', fontsize=10)
@@ -204,7 +204,7 @@ tab4_layout = [
 data_layout = [
     [sg.TabGroup([
         [sg.Tab('Add Students', tab1_layout), sg.Tab('View Students', tab2_layout), sg.Tab('Student Ranking', tab3_layout), sg.Tab('Graph', tab4_layout)]
-    ])],
+    ],enable_events=True)],
 ]
 
 data_window = sg.Window("Student DB", data_layout, modal=True,resizable=True)
@@ -222,10 +222,6 @@ while True:
         # Save data to file when closing the window
         save_data_to_file(students_data)
         break
-
-    #if histogram_window is not None:
-        #delete_fig_agg(histogram_window)
-
 
     if event == "Add Student":
         name = values["count-name"]
