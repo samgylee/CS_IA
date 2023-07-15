@@ -11,6 +11,10 @@ def draw_figure(canvas, figure):
     figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
     return figure_canvas_agg
 
+def delete_fig_agg(fig_agg):
+    fig_agg.get_tk_widget().forget()
+    plt.close()
+
 
 def save_data_to_file(data):
     with open("data.txt", "w") as file:
@@ -129,9 +133,9 @@ grade = ['A', 'B', 'C', 'D', 'E', 'F']
 
 #create a loop that will add the corresponding student numbers per grade, then create 'student numbers' array with correct positioning
 
-def create_bar_graph(grade, students_numbers):
+def create_bar_graph(grade, student_numbers):
     plt.figure(figsize=(4, 2.5))
-    plt.bar(grade, students_numbers, color='red', width=0.4)
+    plt.bar(grade, student_numbers, color='red', width=0.4)
     plt.title('Grade vs Student number', fontsize=10)
     plt.xlabel('Grade', fontsize=10)
     plt.ylabel('student number', fontsize=10)
@@ -203,21 +207,25 @@ data_layout = [
     ])],
 ]
 
-data_window = sg.Window("Student DB", data_layout, modal=True)
+data_window = sg.Window("Student DB", data_layout, modal=True,resizable=True)
 # Load data from file
 students_data = load_data_from_file()
 
 #password_window.protect()
 # Event loop
+histogram_window = None
 while True:
 
     event, values = data_window.read()
-
+    print(event)
     if event == sg.WINDOW_CLOSED:
         # Save data to file when closing the window
         save_data_to_file(students_data)
         break
-    draw_figure(data_window['-CANVAS-'].TKCanvas, create_bar_graph(grade, student_numbers))
+
+    #if histogram_window is not None:
+        #delete_fig_agg(histogram_window)
+
 
     if event == "Add Student":
         name = values["count-name"]
@@ -257,9 +265,10 @@ while True:
             if selected_row_index < len(students_data):
                 removed_row = students_data.pop(selected_row_index)
                 data_window["students-table"].update(values=students_data)
-    if event == "Sort":
-        sorted_data = sorted(students_data, key=lambda x: x[0])
-        data_window["students-table"].update(values=sorted_data)
+
+    if event == "sort-button":
+        students_data=sorted(students_data, key=lambda x: x[0].lower())
+        data_window["students-table"].update(values=students_data)
 
     if event == "edit-students":
         selected_row = values["students-table"]
@@ -323,4 +332,5 @@ while True:
 
                 edit_window.close()
 
+    draw_figure(data_window['-CANVAS-'].TKCanvas, create_bar_graph(grade, student_numbers))
 data_window.close()
