@@ -91,47 +91,46 @@ tab_3_list = []
 for index, row in enumerate(ranking_1):
     tab_3_list.append([str(index + 1), row[0], row[4], row[5]])
 
-student_total_grades = []  # new list
-# total grades from rank_students_list
-for row in ranking_1:
-    total_grade = row[4]
-    student_total_grades.append(total_grade)
 
-# Sort descending order
-student_total_grades.sort(reverse=True)
+def update_student_numbers(ranking,):
 
-# Print the sorted total grades
-print(student_total_grades)
-# Initialize the grade count dictionary
-grade_count = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0}
+    student_total_grades = []  # new list
+    # total grades from rank_students_list
+    for row in ranking:
+        total_grade = row[4]
+        student_total_grades.append(total_grade)
 
-# Iterate over the total grades and update the grade count
-for total_grade in student_total_grades:
-    total_grade = int(total_grade)  # Convert the total grade to an integer
-    if total_grade >= 90:
-        grade_count['A'] += 1
-    elif total_grade >= 80:
-        grade_count['B'] += 1
-    elif total_grade >= 70:
-        grade_count['C'] += 1
-    elif total_grade >= 60:
-        grade_count['D'] += 1
-    elif total_grade >= 50:
-        grade_count['E'] += 1
-    else:
-        grade_count['F'] += 1
+    #create a new dictionary for the grades
+    grade_count = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0}
+    for total_grade in student_total_grades:
+        total_grade = int(total_grade)  # Convert the total grade to an integer
+        if total_grade >= 90:
+            grade_count['A'] += 1
+        elif total_grade >= 80:
+            grade_count['B'] += 1
+        elif total_grade >= 70:
+            grade_count['C'] += 1
+        elif total_grade >= 60:
+            grade_count['D'] += 1
+        elif total_grade >= 50:
+            grade_count['E'] += 1
+        else:
+            grade_count['F'] += 1
 
-# Print the grade count# Create the student numbers list in alphabetical order
-student_numbers = [grade_count[grade] for grade in sorted(grade_count.keys())]
-#
-# # Print the student numbers list
-print(student_numbers)
+    student_numbers = [grade_count[grade] for grade in sorted(grade_count.keys())]
 
 
-grade = ['A', 'B', 'C', 'D', 'E', 'F']
+ # Print the student numbers list
+    print(student_numbers)
+    grade = ['A', 'B', 'C', 'D', 'E', 'F']
+    return grade, student_numbers
+
+
+grade, student_numbers = update_student_numbers(ranking_1)
 
 
 # create a loop that will add the corresponding student numbers per grade, then create 'student numbers' array with correct positioning
+
 
 def create_bar_graph(grade, student_numbers):
     plt.figure(figsize=(4,2.5))
@@ -212,6 +211,8 @@ data_window = sg.Window("Student DB", data_layout, modal=True, resizable=True, f
 # Load data from file
 students_data = load_data_from_file()
 
+
+
 bar_graph=draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
 
 
@@ -266,15 +267,6 @@ while True:
                 midterm_grade = students_data[selected_row_index][2]
                 final_grade = students_data[selected_row_index][3]
 
-    if event == "students-table":
-        selected_row = values["students-table"]
-        if selected_row:
-            selected_row_index = selected_row[0]
-            if selected_row_index < len(students_data):
-                name = students_data[selected_row_index][0]
-                homework_grade = students_data[selected_row_index][1]
-                midterm_grade = students_data[selected_row_index][2]
-                final_grade = students_data[selected_row_index][3]
 
 
     if event == "sort-button":
@@ -338,10 +330,14 @@ while True:
 
                 edit_window.close()
 
+    if event != "students-table":
+        data_window['students-table'].update(values=students_data)
+
     ranking_2 = rank_students()
     data_window["ranked-students-table"].update(
         values=[[str(index + 1), row[0], row[4], row[5]] for index, row in
                 enumerate(ranking_2)])
-    data_window['students-table'].update(values=students_data)
 
+    grade, student_numbers = update_student_numbers(ranking_2)
+    bar_graph = update_bar_graph(bar_graph)
 data_window.close()
