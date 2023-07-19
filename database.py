@@ -53,7 +53,12 @@ def convert_to_letter_grade(total_grade):
 # Function to rank students based on total grades
 def rank_students():
     rank_students_list = copy.deepcopy(students_data)
-    rank_students_list.sort(key=lambda x: int(x[4]), reverse=True)
+    n = len(rank_students_list)
+    for i in range(n - 1):
+        for j in range(n - i - 1):
+            if int(rank_students_list[j][4]) < int(rank_students_list[j + 1][4]):
+                rank_students_list[j], rank_students_list[j + 1] = rank_students_list[j + 1], rank_students_list[j]
+
     return rank_students_list
 
 
@@ -251,7 +256,15 @@ while True:
             data_window["midterm-grade"].update("")  # Clear the midterm grade input field
             data_window["final-grade"].update("")  # Clear the final grade input field
 
-
+    if event == "students-table":
+        selected_row = values["students-table"]
+        if selected_row:
+            selected_row_index = selected_row[0]
+            if selected_row_index < len(students_data):
+                name = students_data[selected_row_index][0]
+                homework_grade = students_data[selected_row_index][1]
+                midterm_grade = students_data[selected_row_index][2]
+                final_grade = students_data[selected_row_index][3]
 
     if event == "students-table":
         selected_row = values["students-table"]
@@ -262,13 +275,6 @@ while True:
                 homework_grade = students_data[selected_row_index][1]
                 midterm_grade = students_data[selected_row_index][2]
                 final_grade = students_data[selected_row_index][3]
-    if event == "delete-button":
-        selected_row = values["students-table"]
-        if selected_row:
-            selected_row_index = selected_row[0]
-            if selected_row_index < len(students_data):
-                removed_row = students_data.pop(selected_row_index)
-                data_window["students-table"].update(values=students_data)
 
 
     if event == "sort-button":
@@ -276,9 +282,9 @@ while True:
         data_window["students-table"].update(values=students_data)
 
     if event == "edit-students":
-        selected_row = values["students-table"]
-        if selected_row:
-            selected_row_index = selected_row[0]
+        selected_edit_row = values["students-table"]
+        if selected_edit_row:
+            selected_row_index = selected_edit_row[0]
             if selected_row_index < len(students_data):
                 name = students_data[selected_row_index][0]
                 homework_grade = students_data[selected_row_index][1]
@@ -328,12 +334,14 @@ while True:
                             students_data[selected_row_index][4] = str(total_grade)
                             students_data[selected_row_index][5] = convert_to_letter_grade(total_grade)
 
-
-
-
                         break
 
                 edit_window.close()
 
-    bar_graph = update_bar_graph(bar_graph)
+    ranking_2 = rank_students()
+    data_window["ranked-students-table"].update(
+        values=[[str(index + 1), row[0], row[4], row[5]] for index, row in
+                enumerate(ranking_2)])
+    data_window['students-table'].update(values=students_data)
+
 data_window.close()
