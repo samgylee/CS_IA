@@ -48,7 +48,14 @@ def convert_to_letter_grade(total_grade):
         return "E"
     else:
         return "F"
+def bubble_sort_students_data(data):
+    n = len(data)
 
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            # Compare the names for alphabetical order by making them lowercase
+            if data[j][0].lower() > data[j + 1][0].lower():
+                data[j], data[j + 1] = data[j + 1], data[j]
 
 # Function to rank students based on total grades
 def rank_students():
@@ -117,13 +124,17 @@ def update_student_numbers(ranking,):
         else:
             grade_count['F'] += 1
 
-    student_numbers = [grade_count[grade] for grade in sorted(grade_count.keys())]
+    grades = ['A', 'B', 'C', 'D', 'E', 'F']
+    n = len(grades)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if grades[j] > grades[j + 1]:
+                grades[j], grades[j + 1] = grades[j + 1], grades[j]
 
+    student_numbers = [grade_count[grade] for grade in grades]
 
- # Print the student numbers list
     print(student_numbers)
-    grade = ['A', 'B', 'C', 'D', 'E', 'F']
-    return grade, student_numbers
+    return grades, student_numbers
 
 
 grade, student_numbers = update_student_numbers(ranking_1)
@@ -267,11 +278,10 @@ while True:
                 midterm_grade = students_data[selected_row_index][2]
                 final_grade = students_data[selected_row_index][3]
 
-
-
     if event == "sort-button":
-        students_data = sorted(students_data, key=lambda x: x[0].lower())
+        bubble_sort_students_data(students_data)
         data_window["students-table"].update(values=students_data)
+
 
     if event == "edit-students":
         selected_edit_row = values["students-table"]
