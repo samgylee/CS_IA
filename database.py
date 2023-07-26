@@ -48,7 +48,7 @@ def convert_to_letter_grade(total_grade):
         return "E"
     else:
         return "F"
-def bubble_sort_students_data(data):
+def bubble_sort(data):
     n = len(data)
 
     for i in range(n):
@@ -133,7 +133,7 @@ def update_student_numbers(ranking,):
 
     student_numbers = [grade_count[grade] for grade in grades]
 
-    print(student_numbers)
+
     return grades, student_numbers
 
 
@@ -180,7 +180,7 @@ tab2_layout = [
             expand_x=True
         )
     ],
-    [sg.Button("-", key="delete-button"), sg.Button("edit", key="edit-students"), sg.Button("Sort", key="sort-button")]
+    [sg.Button("-", key="delete-button"), sg.Button("Edit", key="edit-students"), sg.Button("Sort", key="sort-button")]
 
 ]
 
@@ -218,6 +218,8 @@ data_layout = [
          sg.Tab('Student Ranking', tab3_layout), sg.Tab('Graph', tab4_layout)]
     ], enable_events=True, expand_x=True, expand_y=True)]]
 
+password_window.protect()
+
 data_window = sg.Window("Student DB", data_layout, modal=True, resizable=True, finalize=True)
 # Load data from file
 students_data = load_data_from_file()
@@ -234,7 +236,7 @@ def update_bar_graph(bar_graph):
 
     #forgets the old graph and draws a new graph with the new data
 
-# password_window.protect()
+
 # Event loop
 while True:
 
@@ -279,9 +281,16 @@ while True:
                 final_grade = students_data[selected_row_index][3]
 
     if event == "sort-button":
-        bubble_sort_students_data(students_data)
+        bubble_sort(students_data)
         data_window["students-table"].update(values=students_data)
 
+    if event == "delete-button":
+        selected_row = values["students-table"]
+        if selected_row:
+            selected_row_index = selected_row[0]
+            if selected_row_index < len(students_data):
+                removed_row = students_data.pop(selected_row_index)
+                data_window["students-table"].update(values=students_data)
 
     if event == "edit-students":
         selected_edit_row = values["students-table"]
