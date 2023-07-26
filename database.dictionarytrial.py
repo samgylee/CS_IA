@@ -14,9 +14,10 @@ def draw_figure(canvas, figure): #tkinter canvas widget, bargraph object plt
 
 def save_data_to_file(data):
     with open("data.txt", "w") as file:
-        for student in data:
+        for student in data.values():
             row = ",".join(str(value) for value in student.values())
             file.write(row + "\n")
+
 
 
 sg.theme('LightBlue2')
@@ -28,13 +29,26 @@ def load_data_from_file():
     try:
         with open("data.txt", "r") as file:
             data = file.readlines()
-            data = [row.strip().split(",") for row in data]
-            print(data)
-            data = {val: val+5 for val in data}
-
-            return [dict(zip(["name", "homework_grade", "midterm_grade", "final_grade", "total_grade", "letter_grade"], row)) for row in data]
+            student_dict = {}
+            for row in data:
+                row = row.strip().split(",")
+                name = row[0]
+                homework_grade = row[1]
+                midterm_grade = row[2]
+                final_grade = row[3]
+                total_grade = row[4]
+                letter_grade = row[5]
+                student_dict[name] = {
+                    "homework_grade": homework_grade,
+                    "midterm_grade": midterm_grade,
+                    "final_grade": final_grade,
+                    "total_grade": total_grade,
+                    "letter_grade": letter_grade
+                }
+                print(data)
+            return student_dict
     except FileNotFoundError:
-        return []
+        return {}
 
 
 # Function to convert total grade to letter grade
@@ -57,13 +71,14 @@ def convert_to_letter_grade(total_grade):
 # Function to rank students based on total grades
 def rank_students():
     rank_students_list = copy.deepcopy(students_data)
-    n = len(rank_students_list)
+    students_list = list(rank_students_list.items())
+    n = len(students_list)
     for i in range(n - 1):
         for j in range(n - i - 1):
-            if int(rank_students_list[j]["total_grade"]) < int(rank_students_list[j + 1]["total_grade"]):
-                rank_students_list[j], rank_students_list[j + 1] = rank_students_list[j + 1], rank_students_list[j]
+            if int(students_list[j][1]["total_grade"]) < int(students_list[j + 1][1]["total_grade"]):
+                students_list[j], students_list[j + 1] = students_list[j + 1], students_list[j]
 
-    return rank_students_list
+    return dict(students_list)
 
 
 def grading_students(name, homework_grade, midterm_grade, final_grade, exclude_name=None):
@@ -71,10 +86,10 @@ def grading_students(name, homework_grade, midterm_grade, final_grade, exclude_n
         total_grade = int(homework_grade) + int(midterm_grade) + int(final_grade)
         if 0 <= total_grade <= 100:
             if exclude_name:
-                if any(row["name"] == name and row["name"] != exclude_name for row in students_data):
+                if any(name == key and name != exclude_name for key in students_data.keys()):
                     return None
             else:
-                if any(row["name"] == name for row in students_data):
+                if name in students_data:
                     return None
 
             letter_grade = convert_to_letter_grade(total_grade)
@@ -92,13 +107,13 @@ ranking_1 = rank_students()
 
 tab_3_list = []
 
-for index, row in enumerate(ranking_1):
-    tab_3_list.append([str(index + 1), row["name"], row["total_grade"], row["letter_grade"]])
+for index, (name, data) in enumerate(ranking_1.items()):
+    tab_3_list.append([str(index + 1), name, data["total_grade"], data["letter_grade"]])
 
 student_total_grades = []  # new list
 # total grades from rank_students_list
-for row in ranking_1:
-    total_grade = row["total_grade"]
+for data in ranking_1.values():
+    total_grade = data["total_grade"]
     student_total_grades.append(total_grade)
 
 # Sort descending order
@@ -160,7 +175,7 @@ tab1_layout = [
 tab2_layout = [
     [
         sg.Table(
-            values=students_data,
+            values=list(students_data.values()),
             headings=["Name", "Homework Grade", "Midterm Grade", "Final Grade", "Total Grade"],
             key="students-table",
             col_widths=[20, 15, 15, 15, 15, 15],
@@ -254,15 +269,14 @@ while True:
         else:
             letter_grade = convert_to_letter_grade(total_grade)
             student = {
-                "name": name,
                 "homework_grade": homework_grade,
                 "midterm_grade": midterm_grade,
                 "final_grade": final_grade,
                 "total_grade": total_grade,
                 "letter_grade": letter_grade
             }
-            students_data.append(student)
-            data_window["students-table"].update(values=students_data)
+            students_data[name] = student
+            data_window["students-table"].update(values=list(students_data.values()))
             data_window["count-name"].update("")  # Clear the name input field
             data_window["homework-grade"].update("")  # Clear the homework grade input field
             data_window["midterm-grade"].update("")  # Clear the midterm grade input field
@@ -273,30 +287,31 @@ while True:
         if selected_row:
             selected_row_index = selected_row[0]
             if selected_row_index < len(students_data):
-                name = students_data[selected_row_index]["name"]
-                homework_grade = students_data[selected_row_index]["homework_grade"]
-                midterm_grade = students_data[selected_row_index]["midterm_grade"]
-                final_grade = students_data[selected_row_index]["final_grade"]
+                name = list(students_data.keys())[selected_row_index]
+                homework_grade = students_data[name]["homework_grade"]
+                midterm_grade = students_data[name]["midterm_grade"]
+                final_grade = students_data[name]["final_grade"]
 
     if event == "delete-button":
         selected_row = values["students-table"]
         if selected_row:
             selected_row_index = selected_row[0]
             if selected_row_index < len(students_data):
-                removed_student = students_data.pop(selected_row_index)
-                data_window["students-table"].update(values=students_data)
+                name = list(students_data.keys())[selected_row_index]
+                removed_student = students_data.pop(name)
+                data_window["students-table"].update(values=list(students_data.values()))
 
     if event == "sort-button":
-        students_data = sorted(students_data, key=lambda x: x["name"].lower())
-        data_window["students-table"].update(values=students_data)
+        students_data = dict(sorted(students_data.items(), key=lambda x: x[0].lower()))
+        data_window["students-table"].update(values=list(students_data.values()))
 
     if event == "edit-students":
         selected_row = values["students-table"]
         if selected_row:
             selected_row_index = selected_row[0]
             if selected_row_index < len(students_data):
-                selected_student = students_data[selected_row_index]
-                name = selected_student["name"]
+                name = list(students_data.keys())[selected_row_index]
+                selected_student = students_data[name]
                 homework_grade = selected_student["homework_grade"]
                 midterm_grade = selected_student["midterm_grade"]
                 final_grade = selected_student["final_grade"]
@@ -337,20 +352,22 @@ while True:
                                 button_color="red",
                             )
                         else:
-                            students_data[selected_row_index]["name"] = new_name
-                            students_data[selected_row_index]["homework_grade"] = new_homework_grade
-                            students_data[selected_row_index]["midterm_grade"] = new_midterm_grade
-                            students_data[selected_row_index]["final_grade"] = new_final_grade
-                            students_data[selected_row_index]["total_grade"] = total_grade
-                            students_data[selected_row_index]["letter_grade"] = convert_to_letter_grade(total_grade)
+                            students_data[new_name] = {
+                                "homework_grade": new_homework_grade,
+                                "midterm_grade": new_midterm_grade,
+                                "final_grade": new_final_grade,
+                                "total_grade": total_grade,
+                                "letter_grade": convert_to_letter_grade(total_grade)
+                            }
+                            del students_data[name]
 
                         break
 
                 edit_window.close()
 
     ranking_2 = rank_students()
-    tab_3_list = [[str(index + 1), row["name"], row["total_grade"], row["letter_grade"]] for index, row in enumerate(ranking_2)]
+    tab_3_list = [[str(index + 1), name, data["total_grade"], data["letter_grade"]] for index, (name, data) in enumerate(ranking_2.items())]
     data_window["ranked-students-table"].update(values=tab_3_list)
-    data_window['students-table'].update(values=students_data)
+    data_window['students-table'].update(values=list(students_data.values()))
 
 data_window.close()
