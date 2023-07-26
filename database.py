@@ -144,11 +144,15 @@ grade, student_numbers = update_student_numbers(ranking_1)
 
 
 def create_bar_graph(grade, student_numbers):
-    plt.figure(figsize=(4,2.5))
+    plt.figure(figsize=(4,2.5),facecolor='#AAB6D3')
+    ax = plt.axes()
+    ax.set_facecolor("white")
     plt.bar(grade, student_numbers, color='red', width=0.4)
-    plt.title('Grade vs Student number', fontsize=10)
+    plt.title('Grade vs Student Number', fontsize=10)
     plt.xlabel('Grade', fontsize=10)
-    plt.ylabel('student number', fontsize=10)
+    plt.ylabel('Student Number', fontsize=10)
+    plt.subplots_adjust(top=0.9,bottom=0.2)
+
     return plt.gcf()
 
 
@@ -218,7 +222,7 @@ data_layout = [
          sg.Tab('Student Ranking', tab3_layout), sg.Tab('Graph', tab4_layout)]
     ], enable_events=True, expand_x=True, expand_y=True)]]
 
-password_window.protect()
+#password_window.protect()
 
 data_window = sg.Window("Student DB", data_layout, modal=True, resizable=True, finalize=True)
 # Load data from file
