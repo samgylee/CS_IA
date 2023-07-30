@@ -4,13 +4,14 @@ import password_window
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-
+# Function to draw a figure on a canvas widget
 def draw_figure(canvas, figure): #tkinter canvas widget, bargraph object plt
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas) # type = Class FigureCanvasTkAgg
     figure_canvas_agg.draw()
     figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
     return figure_canvas_agg
 
+# Function to save data to a file
 
 def save_data_to_file(data):
     with open("data.txt", "w") as file:
@@ -48,6 +49,9 @@ def convert_to_letter_grade(total_grade):
         return "E"
     else:
         return "F"
+
+    # Function to perform bubble sort on data
+
 def bubble_sort(data):
     n = len(data)
 
@@ -68,7 +72,7 @@ def rank_students():
 
     return rank_students_list
 
-
+# Function to perform grading for students
 def grading_students(name, homework_grade, midterm_grade, final_grade, exclude_name=None):
     try:
         total_grade = int(homework_grade) + int(midterm_grade) + int(final_grade)
@@ -87,7 +91,7 @@ def grading_students(name, homework_grade, midterm_grade, final_grade, exclude_n
     except ValueError:
         return None
 
-
+# Load data from file
 students_data = load_data_from_file()
 
 
@@ -98,8 +102,9 @@ tab_3_list = []
 for index, row in enumerate(ranking_1):
     tab_3_list.append([str(index + 1), row[0], row[4], row[5]])
 
-
+# Function to update student numbers based on grades for plotting the bar graph
 def update_student_numbers(ranking,):
+    # Calculate total grades from rank_students_list
 
     student_total_grades = []  # new list
     # total grades from rank_students_list
@@ -107,7 +112,7 @@ def update_student_numbers(ranking,):
         total_grade = row[4]
         student_total_grades.append(total_grade)
 
-    #create a new dictionary for the grades
+#create a new dictionary for the grades
     grade_count = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0}
     for total_grade in student_total_grades:
         total_grade = int(total_grade)  # Convert the total grade to an integer
@@ -136,6 +141,7 @@ def update_student_numbers(ranking,):
 
     return grades, student_numbers
 
+# Prepare data for bar graph
 
 grade, student_numbers = update_student_numbers(ranking_1)
 
@@ -238,14 +244,15 @@ def update_bar_graph(bar_graph):
     bar_graph = draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
     return bar_graph
 
-    #forgets the old graph and draws a new graph with the new data
+    #forget the old graph and draws a new graph with the new data
 
 
 # Event loop
 while True:
 
     event, values = data_window.read()
-    print(event)
+    # Save data to file when closing the window
+
     if event == sg.WINDOW_CLOSED:
         # Save data to file when closing the window
         save_data_to_file(students_data)

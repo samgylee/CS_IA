@@ -1,12 +1,13 @@
+America,20,30,20,70,C
 amy,30,40,30,100,A
 brandon,4,12,32,48,F
 christian,20,20,20,60,D
 danithu,20,30,30,80,B
 edgar,20,20,30,70,C
 Jake,20,30,20,70,C
-james,20,30,1,51,E
+James,20,30,1,51,E
 Jassim,0,2,2,3,F
-john,30,10,25,65,D
+John,30,10,25,65,D
 kevin,30,10,40,80,B
 luke,20,20,20,60,D
 paul,30,0,30,80,B
