@@ -11,19 +11,15 @@ def draw_figure(canvas, figure): #tkinter canvas widget, bargraph object plt
     figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
     return figure_canvas_agg
 
-# Function to save data to a file
 
+# Function to save data to a file
 def save_data_to_file(data):
     with open("data.txt", "w") as file:
         for row in data:
             file.write(",".join(row) + "\n")
 
 
-sg.theme('LightBlue2')
-
-
 # Function to load data from a file
-
 def load_data_from_file():
     try:
         with open("data.txt", "r") as file:
@@ -229,8 +225,12 @@ data_layout = [
         [sg.Tab('Add Students', tab1_layout), sg.Tab('View Students', tab2_layout),
          sg.Tab('Student Ranking', tab3_layout), sg.Tab('Graph', tab4_layout)]
     ], enable_events=True, expand_x=True, expand_y=True)]]
+
+
 #imports the password window to prevent access to the code from an unauthorized person
 password_window.protect()
+
+
 #sets the window layout. Finalize=True is needed for the matplotlib graph.
 data_window = sg.Window("Student DB", data_layout, modal=True, resizable=True, finalize=True)
 # Load data from file
@@ -240,20 +240,19 @@ students_data = load_data_from_file()
 #draws the first bargraph so it doesn't override the password window
 bar_graph=draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
 
-
+#forget the old graph and draws a new graph with the new data
 def update_bar_graph(bar_graph):
     bar_graph.get_tk_widget().forget() #forgets bar_graph
     bar_graph = draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
     return bar_graph
 
-    #forget the old graph and draws a new graph with the new data
 
-
+#import PysimpleGui Themes
+sg.theme('LightBlue2')
 # Event loop
 while True:
 
     event, values = data_window.read()
-    # Save data to file when closing the window
 
     if event == sg.WINDOW_CLOSED:
         # Save data to file when closing the window
@@ -344,14 +343,14 @@ while True:
 
                         total_grade = grading_students(new_name, new_homework_grade, new_midterm_grade,new_final_grade,
                         exclude_name=name)
-                        #If the input is invalid, pops up a error message
+                        # If the input is invalid, pops up a error message
                         if total_grade is None:
                             sg.popup_error(
                                 "Please check if your input is correct",
                                 title="Error",
                                 button_color="red",
                             )
-                        #swaps the changes if the inputs are corrects
+                        # swaps the changes if the inputs are corrects
                         else:
                             students_data[selected_row_index][0] = new_name
                             students_data[selected_row_index][1] = str(new_homework_grade)

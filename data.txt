@@ -2,7 +2,7 @@ America,20,30,20,70,C
 amy,30,40,30,100,A
 brandon,4,12,32,48,F
 christian,20,20,20,60,D
-danithu,20,30,30,80,B
+danithu,22,22,33,77,C
 edgar,20,20,30,70,C
 Jake,20,30,20,70,C
 James,20,30,1,51,E
@@ -13,4 +13,4 @@ luke,20,20,20,60,D
 paul,30,0,30,80,B
 sam,20,30,40,90,A
 samsody,23,21,32,76,C
-turner,20,20,10,50,E
+turner,20,50,10,80,B
