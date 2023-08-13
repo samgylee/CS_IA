@@ -4,6 +4,26 @@ import password_window
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+# Global Variables
+
+# create the empty tab 3 list
+tab_3_list = []
+# Empty students data for creating the rank students later on
+students_data = []
+# empty list for the first ranking
+ranking_1 = []
+# empty list for the second ranking after deep-copying students data whenever tab 3 is updated every loop
+ranking_2 = []
+# empty list for the grades that will be stored to be represented in the bar-graph for visual representation.
+grade = []
+# empty list for the number of students in each grade.
+# Set in the  index starting from A,B,C,D,etc. For example, if the list has 5,2,3, A=5,B=2,C=3 students in each grade.
+student_numbers = []
+# Initialize empty histogram to visually represent the number of students in each grade in a different tab
+bar_graph = None
+# initialize the window
+data_window = None
+
 
 # Function to draw a figure on a canvas widget
 def draw_figure(canvas, figure):  # tkinter canvas widget, bargraph object plt
@@ -60,18 +80,6 @@ def bubble_sort(data):
                 data[j], data[j + 1] = data[j + 1], data[j]
 
 
-# Function to rank students based on total grades
-def rank_students():
-    rank_students_list = copy.deepcopy(students_data)
-    n = len(rank_students_list)
-    for i in range(n - 1):
-        for j in range(n - i - 1):
-            if int(rank_students_list[j][4]) < int(rank_students_list[j + 1][4]):
-                rank_students_list[j], rank_students_list[j + 1] = rank_students_list[j + 1], rank_students_list[j]
-
-    return rank_students_list
-
-
 # Function to perform grading for students
 def grading_students(name, homework_grade, midterm_grade, final_grade, exclude_name=None):
     try:
@@ -92,23 +100,19 @@ def grading_students(name, homework_grade, midterm_grade, final_grade, exclude_n
         return None
 
 
-# function for creating the bargraph that will visualize the rankings in Letter grades,
-# by plotting grades A-F in the x axis and the number of students in that criteria in the y axis
-def create_bar_graph(grade, student_numbers):
-    plt.figure(figsize=(4, 2.5), facecolor='#AAB6D3')
-    ax = plt.axes()
-    ax.set_facecolor("white")
-    plt.bar(grade, student_numbers, color='red', width=0.4)
-    plt.title('Grade vs Student Number', fontsize=10)
-    plt.xlabel('Grade', fontsize=10)
-    plt.ylabel('Student Number', fontsize=10)
-    plt.subplots_adjust(top=0.9, bottom=0.2)
+# Function to rank students based on total grades
+def rank_students():
+    rank_students_list = copy.deepcopy(students_data)
+    n = len(rank_students_list)
+    for i in range(n - 1):
+        for j in range(n - i - 1):
+            if int(rank_students_list[j][4]) < int(rank_students_list[j + 1][4]):
+                rank_students_list[j], rank_students_list[j + 1] = rank_students_list[j + 1], rank_students_list[j]
 
-    return plt.gcf()
+    return rank_students_list
 
 
 # Function to update student numbers based on grades for plotting the bar graph
-
 def update_student_numbers(ranking, ):
     # Calculate total grades from rank_students_list
 
@@ -148,17 +152,31 @@ def update_student_numbers(ranking, ):
     return grades, student_numbers
 
 
-# import PysimpleGui Themes
+# function for creating the bargraph that will visualize the rankings in Letter grades,
+# by plotting grades A-F in the x axis and the number of students in that criteria in the y axis
+def create_bar_graph(grade, student_numbers):
+    plt.figure(figsize=(4, 2.5), facecolor='#AAB6D3')
+    ax = plt.axes()
+    ax.set_facecolor("white")
+    plt.bar(grade, student_numbers, color='red', width=0.4)
+    plt.title('Grade vs Student Number', fontsize=10)
+    plt.xlabel('Grade', fontsize=10)
+    plt.ylabel('Student Number', fontsize=10)
+    plt.subplots_adjust(top=0.9, bottom=0.2)
+
+    return plt.gcf()
+
+
+# Now we are done with declaring our global functions, now this is the main body of the code.
+
+# import PysimpleGui Themes, and set the theme to a prettier light blue
 sg.theme('LightBlue2')
 
-# Load data from file
+# Load data from file using the load_data procedure
 students_data = load_data_from_file()
 
-# rank the students
+# rank the students using the imported data , so it shows the initial ranking when we open the code. This will change whenever the user makes a change in the program.
 ranking_1 = rank_students()
-
-# create the empty tab 3 list
-tab_3_list = []
 
 # for loop to add to the new tab 3 list the rankings of the students
 for index, row in enumerate(ranking_1):
@@ -167,7 +185,7 @@ for index, row in enumerate(ranking_1):
 # Prepare data for bar graph
 grade, student_numbers = update_student_numbers(ranking_1)
 
-# Layout for Tab 1 where you input  new students
+# Layout for Tab 1 where you input  new students, added paddings so they align to each other more neatly.
 tab1_layout = [
     [sg.Text('Student name'), sg.InputText(key="count-name", size=(15, 0), pad=(20, 0))],
     [sg.Text('Homework grade'), sg.InputText(key="homework-grade", size=(15, 0))],
@@ -176,8 +194,8 @@ tab1_layout = [
     [sg.Button("Add Student")]
 ]
 
-# Layout for Tab 2 that shows the students in the students_data list
-
+# Layout for Tab 2 that shows the students in the students_data list,
+# this is where the user can edit the students, delete them and sort them in alphabetical order
 tab2_layout = [
     [
         sg.Table(
@@ -200,6 +218,7 @@ tab2_layout = [
 ]
 
 # Layout for Tab 3 that ranks the students
+# This page automatically updates every loop until the program is closed.
 tab3_layout = [
     [
         sg.Table(
@@ -219,13 +238,14 @@ tab3_layout = [
         )
     ]
 ]
-# layout for tab 4 that draws a canvas for the visual graph.
+
+# layout for tab 4 that draws a canvas for the visual histogram.
+# This helps the viewer see a normal distribution, and the bell curve of the grades.
 tab4_layout = [
     [sg.Column([[sg.Canvas(key='bar-graph', size=(400, 400))]], element_justification='center', pad=(150, 100))]
 ]
 
 # Create the main window with tabs
-
 data_layout = [
     [sg.TabGroup([
         [sg.Tab('Add Students', tab1_layout), sg.Tab('View Students', tab2_layout),
