@@ -4,9 +4,10 @@ import password_window
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+
 # Function to draw a figure on a canvas widget
-def draw_figure(canvas, figure): #tkinter canvas widget, bargraph object plt
-    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas) # type = Class FigureCanvasTkAgg
+def draw_figure(canvas, figure):  # tkinter canvas widget, bargraph object plt
+    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)  # type = Class FigureCanvasTkAgg
     figure_canvas_agg.draw()
     figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
     return figure_canvas_agg
@@ -48,6 +49,7 @@ def convert_to_letter_grade(total_grade):
 
     # Function to perform bubble sort on data
 
+
 def bubble_sort(data):
     n = len(data)
 
@@ -56,6 +58,7 @@ def bubble_sort(data):
             # Compare the names for alphabetical order by making them lowercase
             if data[j][0].lower() > data[j + 1][0].lower():
                 data[j], data[j + 1] = data[j + 1], data[j]
+
 
 # Function to rank students based on total grades
 def rank_students():
@@ -67,6 +70,7 @@ def rank_students():
                 rank_students_list[j], rank_students_list[j + 1] = rank_students_list[j + 1], rank_students_list[j]
 
     return rank_students_list
+
 
 # Function to perform grading for students
 def grading_students(name, homework_grade, midterm_grade, final_grade, exclude_name=None):
@@ -87,19 +91,25 @@ def grading_students(name, homework_grade, midterm_grade, final_grade, exclude_n
     except ValueError:
         return None
 
-# Load data from file
-students_data = load_data_from_file()
 
+# function for creating the bargraph that will visualize the rankings in Letter grades,
+# by plotting grades A-F in the x axis and the number of students in that criteria in the y axis
+def create_bar_graph(grade, student_numbers):
+    plt.figure(figsize=(4, 2.5), facecolor='#AAB6D3')
+    ax = plt.axes()
+    ax.set_facecolor("white")
+    plt.bar(grade, student_numbers, color='red', width=0.4)
+    plt.title('Grade vs Student Number', fontsize=10)
+    plt.xlabel('Grade', fontsize=10)
+    plt.ylabel('Student Number', fontsize=10)
+    plt.subplots_adjust(top=0.9, bottom=0.2)
 
-ranking_1 = rank_students()
+    return plt.gcf()
 
-tab_3_list = []
-
-for index, row in enumerate(ranking_1):
-    tab_3_list.append([str(index + 1), row[0], row[4], row[5]])
 
 # Function to update student numbers based on grades for plotting the bar graph
-def update_student_numbers(ranking,):
+
+def update_student_numbers(ranking, ):
     # Calculate total grades from rank_students_list
 
     student_total_grades = []  # new list
@@ -108,7 +118,7 @@ def update_student_numbers(ranking,):
         total_grade = row[4]
         student_total_grades.append(total_grade)
 
-#create a new dictionary for the grades
+    # create a new dictionary for the grades
     grade_count = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0}
     for total_grade in student_total_grades:
         total_grade = int(total_grade)  # Convert the total grade to an integer
@@ -125,6 +135,7 @@ def update_student_numbers(ranking,):
         else:
             grade_count['F'] += 1
 
+    # create a loop that will add the corresponding student numbers per grade, then create 'student numbers' array with correct positioning
     grades = ['A', 'B', 'C', 'D', 'E', 'F']
     n = len(grades)
     for i in range(n):
@@ -134,30 +145,27 @@ def update_student_numbers(ranking,):
 
     student_numbers = [grade_count[grade] for grade in grades]
 
-
     return grades, student_numbers
 
+
+# import PysimpleGui Themes
+sg.theme('LightBlue2')
+
+# Load data from file
+students_data = load_data_from_file()
+
+# rank the students
+ranking_1 = rank_students()
+
+# create the empty tab 3 list
+tab_3_list = []
+
+# for loop to add to the new tab 3 list the rankings of the students
+for index, row in enumerate(ranking_1):
+    tab_3_list.append([str(index + 1), row[0], row[4], row[5]])
+
 # Prepare data for bar graph
-
 grade, student_numbers = update_student_numbers(ranking_1)
-
-
-# create a loop that will add the corresponding student numbers per grade, then create 'student numbers' array with correct positioning
-
-#function for creating the bargraph that will visualize the rankings in Letter grades,
-# by plotting grades A-F in the x axis and the number of students in that criteria in the y axis
-def create_bar_graph(grade, student_numbers):
-    plt.figure(figsize=(4,2.5),facecolor='#AAB6D3')
-    ax = plt.axes()
-    ax.set_facecolor("white")
-    plt.bar(grade, student_numbers, color='red', width=0.4)
-    plt.title('Grade vs Student Number', fontsize=10)
-    plt.xlabel('Grade', fontsize=10)
-    plt.ylabel('Student Number', fontsize=10)
-    plt.subplots_adjust(top=0.9,bottom=0.2)
-
-    return plt.gcf()
-
 
 # Layout for Tab 1 where you input  new students
 tab1_layout = [
@@ -191,7 +199,6 @@ tab2_layout = [
 
 ]
 
-
 # Layout for Tab 3 that ranks the students
 tab3_layout = [
     [
@@ -212,11 +219,10 @@ tab3_layout = [
         )
     ]
 ]
-#layout for tab 4 that draws a canvas for the visual graph.
+# layout for tab 4 that draws a canvas for the visual graph.
 tab4_layout = [
     [sg.Column([[sg.Canvas(key='bar-graph', size=(400, 400))]], element_justification='center', pad=(150, 100))]
 ]
-
 
 # Create the main window with tabs
 
@@ -226,29 +232,25 @@ data_layout = [
          sg.Tab('Student Ranking', tab3_layout), sg.Tab('Graph', tab4_layout)]
     ], enable_events=True, expand_x=True, expand_y=True)]]
 
-
-#imports the password window to prevent access to the code from an unauthorized person
+# imports the password window to prevent access to the code from an unauthorized person
 password_window.protect()
 
-
-#sets the window layout. Finalize=True is needed for the matplotlib graph.
+# sets the window layout. Finalize=True is needed for the matplotlib graph.
 data_window = sg.Window("Student DB", data_layout, modal=True, resizable=True, finalize=True)
 # Load data from file
 students_data = load_data_from_file()
 
+# draws the first bargraph so it doesn't override the password window
+bar_graph = draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
 
-#draws the first bargraph so it doesn't override the password window
-bar_graph=draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
 
-#forget the old graph and draws a new graph with the new data
+# forget the old graph and draws a new graph with the new data
 def update_bar_graph(bar_graph):
-    bar_graph.get_tk_widget().forget() #forgets bar_graph
+    bar_graph.get_tk_widget().forget()  # forgets bar_graph
     bar_graph = draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
     return bar_graph
 
 
-#import PysimpleGui Themes
-sg.theme('LightBlue2')
 # Event loop
 while True:
 
@@ -258,14 +260,14 @@ while True:
         # Save data to file when closing the window
         save_data_to_file(students_data)
         break
-#When the user clicks add student, it assigns the variables to the values and gives them keys to be checked later if the vlaues are correct.
+    # When the user clicks add student, it assigns the variables to the values and gives them keys to be checked later if the vlaues are correct.
     if event == "Add Student":
         name = values["count-name"]
         homework_grade = values["homework-grade"]
         midterm_grade = values["midterm-grade"]
         final_grade = values["final-grade"]
-#uses the grading students function to see if the values are valid and if not, pops up a error message.
-# If the values are valid, appends the new student to the students data list and refreshes the window.
+        # uses the grading students function to see if the values are valid and if not, pops up a error message.
+        # If the values are valid, appends the new student to the students data list and refreshes the window.
         total_grade = grading_students(name, homework_grade, midterm_grade, final_grade)
         if total_grade is None:
             sg.popup_error(
@@ -282,7 +284,7 @@ while True:
             data_window["homework-grade"].update("")  # Clear the homework grade input field
             data_window["midterm-grade"].update("")  # Clear the midterm grade input field
             data_window["final-grade"].update("")  # Clear the final grade input field
-#enables the user to select the tables
+    # enables the user to select the tables
     if event == "students-table":
         selected_row = values["students-table"]
         if selected_row:
@@ -292,11 +294,11 @@ while True:
                 homework_grade = students_data[selected_row_index][1]
                 midterm_grade = students_data[selected_row_index][2]
                 final_grade = students_data[selected_row_index][3]
-#when the user clicks the sort button, sorts the names in alphabetical order
+    # when the user clicks the sort button, sorts the names in alphabetical order
     if event == "sort-button":
         bubble_sort(students_data)
         data_window["students-table"].update(values=students_data)
-#when the user clicks the delete button, the program deletes the selected student's data from the file
+    # when the user clicks the delete button, the program deletes the selected student's data from the file
     if event == "delete-button":
         selected_row = values["students-table"]
         if selected_row:
@@ -304,7 +306,7 @@ while True:
             if selected_row_index < len(students_data):
                 removed_row = students_data.pop(selected_row_index)
                 data_window["students-table"].update(values=students_data)
-#when the user clicks on the edit button, creates a new edit window that saves the changes and updates it to student_data and represents it on tab 2 and 3
+    # when the user clicks on the edit button, creates a new edit window that saves the changes and updates it to student_data and represents it on tab 2 and 3
     if event == "edit-students":
         selected_edit_row = values["students-table"]
         if selected_edit_row:
@@ -323,7 +325,7 @@ while True:
                 ]
 
                 edit_window = sg.Window('Edit Student', edit_layout)
-                #new edit window
+                # new edit window
                 while True:
                     edit_event, edit_values = edit_window.read()
 
@@ -341,8 +343,8 @@ while True:
                         new_midterm_grade = int(new_midterm_grade)
                         new_final_grade = int(new_final_grade)
 
-                        total_grade = grading_students(new_name, new_homework_grade, new_midterm_grade,new_final_grade,
-                        exclude_name=name)
+                        total_grade = grading_students(new_name, new_homework_grade, new_midterm_grade, new_final_grade,
+                                                       exclude_name=name)
                         # If the input is invalid, pops up a error message
                         if total_grade is None:
                             sg.popup_error(
@@ -362,15 +364,15 @@ while True:
                         break
 
                 edit_window.close()
-# updates datawindow
+    # updates datawindow
     if event != "students-table":
         data_window['students-table'].update(values=students_data)
-#updates the ranks of the students to be correctly shown in tab 3 when the changes are made
+    # updates the ranks of the students to be correctly shown in tab 3 when the changes are made
     ranking_2 = rank_students()
     data_window["ranked-students-table"].update(
         values=[[str(index + 1), row[0], row[4], row[5]] for index, row in
                 enumerate(ranking_2)])
-#updates matplotlib graph based upon the new updated ranking
+    # updates matplotlib graph based upon the new updated ranking
     grade, student_numbers = update_student_numbers(ranking_2)
     bar_graph = update_bar_graph(bar_graph)
 data_window.close()
