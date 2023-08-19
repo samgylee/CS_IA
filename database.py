@@ -172,7 +172,7 @@ def create_bar_graph(grade, student_numbers):
 # import PysimpleGui Themes, and set the theme to a prettier light blue
 sg.theme('LightBlue2')
 
-# Load data from file using the load_data procedure
+# Load data from file using the load_data procedure.
 students_data = load_data_from_file()
 
 # rank the students using the imported data , so it shows the initial ranking when we open the code. This will change whenever the user makes a change in the program.
