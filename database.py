@@ -166,6 +166,11 @@ def create_bar_graph(grade, student_numbers):
 
     return plt.gcf()
 
+# forget the old graph and draws a new graph with the new data
+def update_bar_graph(bar_graph):
+    bar_graph.get_tk_widget().forget()  # forgets bar_graph
+    bar_graph = draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
+    return bar_graph
 
 # Now we are done with declaring our global functions, now this is the main body of the code.
 
@@ -262,13 +267,6 @@ students_data = load_data_from_file()
 
 # draws the first bargraph so it doesn't override the password window
 bar_graph = draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
-
-
-# forget the old graph and draws a new graph with the new data
-def update_bar_graph(bar_graph):
-    bar_graph.get_tk_widget().forget()  # forgets bar_graph
-    bar_graph = draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
-    return bar_graph
 
 
 # Event loop
