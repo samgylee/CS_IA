@@ -20,9 +20,9 @@ grade: list[str] = ['A', 'B', 'C', 'D', 'E', 'F']
 # Set in the  index starting from A,B,C,D,etc. For example, if the list has 5,2,3, A=5,B=2,C=3 students in each grade.
 student_numbers: List[int] = []
 # Initialize empty histogram to visually represent the number of students in each grade in a different tab
-bar_graph = None
+bar_graph = Any
 # initialize the window
-data_window = None
+data_window = Any
 
 
 # Function to draw a figure on a canvas widget
