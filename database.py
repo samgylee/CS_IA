@@ -148,7 +148,7 @@ def update_student_numbers(ranking: List[List[str]]):
 
 # function for creating the bargraph that will visualize the rankings in Letter grades,
 # by plotting grades A-F in the x axis and the number of students in that criteria in the y axis
-def create_bar_graph(grade, student_numbers):
+def create_bar_graph(grade: List[str], student_numbers: List[int]):
     plt.figure(figsize=(4, 2.5), facecolor='#AAB6D3')
     ax = plt.axes()
     ax.set_facecolor("white")
@@ -259,7 +259,7 @@ data_window = sg.Window("Student DB", data_layout, modal=True, resizable=True, f
 # Load data from file
 students_data = load_data_from_file()
 
-# draws the first bargraph so it doesn't override the password window
+# draws the first bar-graph,so it doesn't override the password window
 bar_graph = draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
 
 
