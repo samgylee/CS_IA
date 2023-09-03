@@ -161,7 +161,7 @@ def create_bar_graph(grade: List[str], student_numbers: List[int]):
     return plt.gcf()
 
 # forget the old graph and draws a new graph with the new data
-def update_bar_graph(bar_graph):
+def update_bar_graph(bar_graph:FigureCanvasTkAgg):
     bar_graph.get_tk_widget().forget()  # forgets bar_graph
     bar_graph = draw_figure(data_window["bar-graph"].TKCanvas, create_bar_graph(grade, student_numbers))
     return bar_graph
