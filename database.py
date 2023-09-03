@@ -3,22 +3,22 @@ import copy
 import password_window
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from typing import Any
+from typing import Any, List, Optional, Tuple
 # Global Variables
 
 # create the empty tab 3 list
-tab_3_list = []
+tab_3_list: List[List[str]] = []
 # Empty students data for creating the rank students later on
-students_data = []
+students_data: List[List[str]] = []
 # empty list for the first ranking
-ranking_1 = []
+ranking_1: List[List[str]] = []
 # empty list for the second ranking after deep-copying students data whenever tab 3 is updated every loop
-ranking_2 = []
+ranking_2: List[List[str]] = []
 # empty list for the grades that will be stored to be represented in the bar-graph for visual representation.
 grade: list[str] = ['A', 'B', 'C', 'D', 'E', 'F']
 # empty list for the number of students in each grade.
 # Set in the  index starting from A,B,C,D,etc. For example, if the list has 5,2,3, A=5,B=2,C=3 students in each grade.
-student_numbers = []
+student_numbers: List[int] = []
 # Initialize empty histogram to visually represent the number of students in each grade in a different tab
 bar_graph = None
 # initialize the window
