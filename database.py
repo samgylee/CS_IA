@@ -3,7 +3,7 @@ import copy
 import password_window
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Tuple
 # Global Variables
 
 # create the empty tab 3 list
@@ -34,7 +34,7 @@ def draw_figure(canvas, figure):  # tkinter canvas widget, bargraph object plt
 
 
 # Function to save data to a file
-def save_data_to_file(data):
+def save_data_to_file(data: List[List[str]]):
     with open("data.txt", "w") as file:
         for row in data:
             file.write(",".join(row) + "\n")
@@ -52,7 +52,7 @@ def load_data_from_file():
 
 
 # Function to convert total grade to letter grade
-def convert_to_letter_grade(total_grade):
+def convert_to_letter_grade(total_grade: int):
     if total_grade >= 90:
         return "A"
     elif total_grade >= 80:
@@ -66,8 +66,9 @@ def convert_to_letter_grade(total_grade):
     else:
         return "F"
 
+
 # Function to perform bubble sort on data
-def bubble_sort(data):
+def bubble_sort(data: List[List[str]]):
     n = len(data)
     for i in range(n):
         for j in range(0, n - i - 1):
@@ -88,7 +89,6 @@ def grading_students(name: str, homework_grade: int, midterm_grade: int, final_g
                 if any(row[0] == name for row in students_data):
                     return None
 
-            letter_grade = convert_to_letter_grade(total_grade)
             return total_grade
         else:
             return None
@@ -109,16 +109,16 @@ def rank_students():
 
 
 # Function to update student numbers based on grades for plotting the bar graph
-def update_student_numbers(ranking):
+def update_student_numbers(ranking: List[List[str]]):
     # Calculate total grades from rank_students_list
     student_total_grades = []  # new list
+    grade_count = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0}  # create a new dictionary for the grades
+
     # total grades from rank_students_list
     for row in ranking:
         total_grade = row[4]
         student_total_grades.append(total_grade)
 
-    # create a new dictionary for the grades
-    grade_count = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0}
     for total_grade in student_total_grades:
         total_grade = int(total_grade)  # Convert the total grade to an integer
         if total_grade >= 90:
