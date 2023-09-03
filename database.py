@@ -3,7 +3,7 @@ import copy
 import password_window
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+from typing import Any
 # Global Variables
 
 # create the empty tab 3 list
@@ -15,7 +15,7 @@ ranking_1 = []
 # empty list for the second ranking after deep-copying students data whenever tab 3 is updated every loop
 ranking_2 = []
 # empty list for the grades that will be stored to be represented in the bar-graph for visual representation.
-grade = []
+grade: list[str] = ['A', 'B', 'C', 'D', 'E', 'F']
 # empty list for the number of students in each grade.
 # Set in the  index starting from A,B,C,D,etc. For example, if the list has 5,2,3, A=5,B=2,C=3 students in each grade.
 student_numbers = []
@@ -52,7 +52,6 @@ def load_data_from_file():
 
 
 # Function to convert total grade to letter grade
-
 def convert_to_letter_grade(total_grade):
     if total_grade >= 90:
         return "A"
@@ -67,12 +66,9 @@ def convert_to_letter_grade(total_grade):
     else:
         return "F"
 
-    # Function to perform bubble sort on data
-
-
+# Function to perform bubble sort on data
 def bubble_sort(data):
     n = len(data)
-
     for i in range(n):
         for j in range(0, n - i - 1):
             # Compare the names for alphabetical order by making them lowercase
@@ -81,7 +77,7 @@ def bubble_sort(data):
 
 
 # Function to perform grading for students
-def grading_students(name, homework_grade, midterm_grade, final_grade, exclude_name=None):
+def grading_students(name: str, homework_grade: int, midterm_grade: int, final_grade: int, exclude_name=None):
     try:
         total_grade = int(homework_grade) + int(midterm_grade) + int(final_grade)
         if 0 <= total_grade <= 100:
@@ -102,7 +98,7 @@ def grading_students(name, homework_grade, midterm_grade, final_grade, exclude_n
 
 # Function to rank students based on total grades
 def rank_students():
-    rank_students_list = copy.deepcopy(students_data)
+    rank_students_list: list[Any] = copy.deepcopy(students_data)
     n = len(rank_students_list)
     for i in range(n - 1):
         for j in range(n - i - 1):
@@ -113,9 +109,8 @@ def rank_students():
 
 
 # Function to update student numbers based on grades for plotting the bar graph
-def update_student_numbers(ranking, ):
+def update_student_numbers(ranking):
     # Calculate total grades from rank_students_list
-
     student_total_grades = []  # new list
     # total grades from rank_students_list
     for row in ranking:
@@ -140,16 +135,15 @@ def update_student_numbers(ranking, ):
             grade_count['F'] += 1
 
     # create a loop that will add the corresponding student numbers per grade, then create 'student numbers' array with correct positioning
-    grades = ['A', 'B', 'C', 'D', 'E', 'F']
-    n = len(grades)
+    n = len(grade)
     for i in range(n):
         for j in range(0, n - i - 1):
-            if grades[j] > grades[j + 1]:
-                grades[j], grades[j + 1] = grades[j + 1], grades[j]
+            if grade[j] > grade[j + 1]:
+                grade[j], grade[j + 1] = grade[j + 1], grade[j]
 
-    student_numbers = [grade_count[grade] for grade in grades]
+    student_numbers = [grade_count[grade] for grade in grade]
 
-    return grades, student_numbers
+    return student_numbers
 
 
 # function for creating the bargraph that will visualize the rankings in Letter grades,
@@ -188,7 +182,7 @@ for index, row in enumerate(ranking_1):
     tab_3_list.append([str(index + 1), row[0], row[4], row[5]])
 
 # Prepare data for bar graph
-grade, student_numbers = update_student_numbers(ranking_1)
+student_numbers = update_student_numbers(ranking_1)
 
 # Layout for Tab 1 where you input  new students, added paddings so they align to each other more neatly.
 tab1_layout = [
@@ -391,6 +385,6 @@ while True:
         values=[[str(index + 1), row[0], row[4], row[5]] for index, row in
                 enumerate(ranking_2)])
     # updates matplotlib graph based upon the new updated ranking
-    grade, student_numbers = update_student_numbers(ranking_2)
+    student_numbers = update_student_numbers(ranking_2)
     bar_graph = update_bar_graph(bar_graph)
 data_window.close()
