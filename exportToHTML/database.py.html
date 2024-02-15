@@ -1,0 +1,412 @@
+<html>
+<head>
+<title>database.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+database.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">PySimpleGUI </span><span class="s0">as </span><span class="s1">sg</span>
+<span class="s0">import </span><span class="s1">copy</span>
+<span class="s0">import </span><span class="s1">password_window</span>
+<span class="s0">import </span><span class="s1">matplotlib</span><span class="s2">.</span><span class="s1">pyplot </span><span class="s0">as </span><span class="s1">plt</span>
+<span class="s0">from </span><span class="s1">matplotlib</span><span class="s2">.</span><span class="s1">backends</span><span class="s2">.</span><span class="s1">backend_tkagg </span><span class="s0">import </span><span class="s1">FigureCanvasTkAgg</span>
+<span class="s0">from </span><span class="s1">typing </span><span class="s0">import </span><span class="s1">Any</span><span class="s2">, </span><span class="s1">List</span><span class="s2">, </span><span class="s1">Tuple</span>
+<span class="s3"># Global Variables</span>
+
+<span class="s3"># create the empty tab 3 list</span>
+<span class="s1">tab_3_list</span><span class="s2">: </span><span class="s1">List</span><span class="s2">[</span><span class="s1">List</span><span class="s2">[</span><span class="s1">str</span><span class="s2">]] = []</span>
+<span class="s3"># Empty students data for creating the rank students later on</span>
+<span class="s1">students_data</span><span class="s2">: </span><span class="s1">List</span><span class="s2">[</span><span class="s1">List</span><span class="s2">[</span><span class="s1">str</span><span class="s2">]] = []</span>
+<span class="s3"># empty list for the first ranking</span>
+<span class="s1">ranking_1</span><span class="s2">: </span><span class="s1">List</span><span class="s2">[</span><span class="s1">List</span><span class="s2">[</span><span class="s1">str</span><span class="s2">]] = []</span>
+<span class="s3"># empty list for the second ranking after deep-copying students data whenever tab 3 is updated every loop</span>
+<span class="s1">ranking_2</span><span class="s2">: </span><span class="s1">List</span><span class="s2">[</span><span class="s1">List</span><span class="s2">[</span><span class="s1">str</span><span class="s2">]] = []</span>
+<span class="s3"># empty list for the grades that will be stored to be represented in the bar-graph for visual representation.</span>
+<span class="s1">grade</span><span class="s2">: </span><span class="s1">list</span><span class="s2">[</span><span class="s1">str</span><span class="s2">] = [</span><span class="s4">'A'</span><span class="s2">, </span><span class="s4">'B'</span><span class="s2">, </span><span class="s4">'C'</span><span class="s2">, </span><span class="s4">'D'</span><span class="s2">, </span><span class="s4">'E'</span><span class="s2">, </span><span class="s4">'F'</span><span class="s2">]</span>
+<span class="s3"># empty list for the number of students in each grade.</span>
+<span class="s3"># Set in the  index starting from A,B,C,D,etc. For example, if the list has 5,2,3, A=5,B=2,C=3 students in each grade.</span>
+<span class="s1">student_numbers</span><span class="s2">: </span><span class="s1">List</span><span class="s2">[</span><span class="s1">int</span><span class="s2">] = []</span>
+<span class="s3"># Initialize empty histogram to visually represent the number of students in each grade in a different tab</span>
+<span class="s1">bar_graph </span><span class="s2">= </span><span class="s1">Any</span>
+<span class="s3"># initialize the window</span>
+<span class="s1">data_window </span><span class="s2">= </span><span class="s1">Any</span>
+
+
+<span class="s3"># Function to draw a figure on a canvas widget</span>
+<span class="s0">def </span><span class="s1">draw_figure</span><span class="s2">(</span><span class="s1">canvas</span><span class="s2">, </span><span class="s1">figure</span><span class="s2">):  </span><span class="s3"># tkinter canvas widget, bargraph object plt</span>
+    <span class="s1">figure_canvas_agg </span><span class="s2">= </span><span class="s1">FigureCanvasTkAgg</span><span class="s2">(</span><span class="s1">figure</span><span class="s2">, </span><span class="s1">canvas</span><span class="s2">)  </span><span class="s3"># type = Class FigureCanvasTkAgg</span>
+    <span class="s1">figure_canvas_agg</span><span class="s2">.</span><span class="s1">draw</span><span class="s2">()</span>
+    <span class="s1">figure_canvas_agg</span><span class="s2">.</span><span class="s1">get_tk_widget</span><span class="s2">().</span><span class="s1">pack</span><span class="s2">(</span><span class="s1">side</span><span class="s2">=</span><span class="s4">'top'</span><span class="s2">, </span><span class="s1">fill</span><span class="s2">=</span><span class="s4">'both'</span><span class="s2">, </span><span class="s1">expand</span><span class="s2">=</span><span class="s5">1</span><span class="s2">)</span>
+    <span class="s0">return </span><span class="s1">figure_canvas_agg</span>
+
+
+<span class="s3"># Function to save data to a file</span>
+<span class="s0">def </span><span class="s1">save_data_to_file</span><span class="s2">(</span><span class="s1">data</span><span class="s2">: </span><span class="s1">List</span><span class="s2">[</span><span class="s1">List</span><span class="s2">[</span><span class="s1">str</span><span class="s2">]]):</span>
+    <span class="s0">with </span><span class="s1">open</span><span class="s2">(</span><span class="s4">&quot;data.txt&quot;</span><span class="s2">, </span><span class="s4">&quot;w&quot;</span><span class="s2">) </span><span class="s0">as </span><span class="s1">file</span><span class="s2">:</span>
+        <span class="s0">for </span><span class="s1">row </span><span class="s0">in </span><span class="s1">data</span><span class="s2">:</span>
+            <span class="s1">file</span><span class="s2">.</span><span class="s1">write</span><span class="s2">(</span><span class="s4">&quot;,&quot;</span><span class="s2">.</span><span class="s1">join</span><span class="s2">(</span><span class="s1">row</span><span class="s2">) + </span><span class="s4">&quot;</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">)</span>
+
+
+<span class="s3"># Function to load data from a file</span>
+<span class="s0">def </span><span class="s1">load_data_from_file</span><span class="s2">():</span>
+    <span class="s0">try</span><span class="s2">:</span>
+        <span class="s0">with </span><span class="s1">open</span><span class="s2">(</span><span class="s4">&quot;data.txt&quot;</span><span class="s2">, </span><span class="s4">&quot;r&quot;</span><span class="s2">) </span><span class="s0">as </span><span class="s1">file</span><span class="s2">:</span>
+            <span class="s1">data </span><span class="s2">= </span><span class="s1">file</span><span class="s2">.</span><span class="s1">readlines</span><span class="s2">()</span>
+            <span class="s1">data </span><span class="s2">= [</span><span class="s1">row</span><span class="s2">.</span><span class="s1">strip</span><span class="s2">().</span><span class="s1">split</span><span class="s2">(</span><span class="s4">&quot;,&quot;</span><span class="s2">) </span><span class="s0">for </span><span class="s1">row </span><span class="s0">in </span><span class="s1">data</span><span class="s2">]</span>
+            <span class="s0">return </span><span class="s1">data</span>
+    <span class="s0">except </span><span class="s1">FileNotFoundError</span><span class="s2">:</span>
+        <span class="s0">return </span><span class="s2">[]</span>
+
+
+<span class="s3"># Function to convert total grade to letter grade</span>
+<span class="s0">def </span><span class="s1">convert_to_letter_grade</span><span class="s2">(</span><span class="s1">total_grade</span><span class="s2">: </span><span class="s1">int</span><span class="s2">):</span>
+    <span class="s0">if </span><span class="s1">total_grade </span><span class="s2">&gt;= </span><span class="s5">90</span><span class="s2">:</span>
+        <span class="s0">return </span><span class="s4">&quot;A&quot;</span>
+    <span class="s0">elif </span><span class="s1">total_grade </span><span class="s2">&gt;= </span><span class="s5">80</span><span class="s2">:</span>
+        <span class="s0">return </span><span class="s4">&quot;B&quot;</span>
+    <span class="s0">elif </span><span class="s1">total_grade </span><span class="s2">&gt;= </span><span class="s5">70</span><span class="s2">:</span>
+        <span class="s0">return </span><span class="s4">&quot;C&quot;</span>
+    <span class="s0">elif </span><span class="s1">total_grade </span><span class="s2">&gt;= </span><span class="s5">60</span><span class="s2">:</span>
+        <span class="s0">return </span><span class="s4">&quot;D&quot;</span>
+    <span class="s0">elif </span><span class="s1">total_grade </span><span class="s2">&gt;= </span><span class="s5">50</span><span class="s2">:</span>
+        <span class="s0">return </span><span class="s4">&quot;E&quot;</span>
+    <span class="s0">else</span><span class="s2">:</span>
+        <span class="s0">return </span><span class="s4">&quot;F&quot;</span>
+
+
+<span class="s3"># Function to perform bubble sort on data</span>
+<span class="s0">def </span><span class="s1">bubble_sort</span><span class="s2">(</span><span class="s1">data</span><span class="s2">: </span><span class="s1">List</span><span class="s2">[</span><span class="s1">List</span><span class="s2">[</span><span class="s1">str</span><span class="s2">]]):</span>
+    <span class="s1">n </span><span class="s2">= </span><span class="s1">len</span><span class="s2">(</span><span class="s1">data</span><span class="s2">)</span>
+    <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s1">n</span><span class="s2">):</span>
+        <span class="s0">for </span><span class="s1">j </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s1">n </span><span class="s2">- </span><span class="s1">i </span><span class="s2">- </span><span class="s5">1</span><span class="s2">):</span>
+            <span class="s3"># Compare the names for alphabetical order by making them lowercase</span>
+            <span class="s0">if </span><span class="s1">data</span><span class="s2">[</span><span class="s1">j</span><span class="s2">][</span><span class="s5">0</span><span class="s2">].</span><span class="s1">lower</span><span class="s2">() &gt; </span><span class="s1">data</span><span class="s2">[</span><span class="s1">j </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">][</span><span class="s5">0</span><span class="s2">].</span><span class="s1">lower</span><span class="s2">():</span>
+                <span class="s1">data</span><span class="s2">[</span><span class="s1">j</span><span class="s2">], </span><span class="s1">data</span><span class="s2">[</span><span class="s1">j </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">] = </span><span class="s1">data</span><span class="s2">[</span><span class="s1">j </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">], </span><span class="s1">data</span><span class="s2">[</span><span class="s1">j</span><span class="s2">]</span>
+
+
+<span class="s3"># Function to perform grading for students</span>
+<span class="s0">def </span><span class="s1">grading_students</span><span class="s2">(</span><span class="s1">name</span><span class="s2">: </span><span class="s1">str</span><span class="s2">, </span><span class="s1">homework_grade</span><span class="s2">: </span><span class="s1">int</span><span class="s2">, </span><span class="s1">midterm_grade</span><span class="s2">: </span><span class="s1">int</span><span class="s2">, </span><span class="s1">final_grade</span><span class="s2">: </span><span class="s1">int</span><span class="s2">, </span><span class="s1">exclude_name</span><span class="s2">=</span><span class="s0">None</span><span class="s2">):</span>
+    <span class="s0">try</span><span class="s2">:</span>
+        <span class="s1">total_grade </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">homework_grade</span><span class="s2">) + </span><span class="s1">int</span><span class="s2">(</span><span class="s1">midterm_grade</span><span class="s2">) + </span><span class="s1">int</span><span class="s2">(</span><span class="s1">final_grade</span><span class="s2">)</span>
+        <span class="s0">if </span><span class="s5">0 </span><span class="s2">&lt;= </span><span class="s1">total_grade </span><span class="s2">&lt;= </span><span class="s5">100</span><span class="s2">:</span>
+            <span class="s0">if </span><span class="s1">exclude_name</span><span class="s2">:</span>
+                <span class="s0">if </span><span class="s1">any</span><span class="s2">(</span><span class="s1">row</span><span class="s2">[</span><span class="s5">0</span><span class="s2">] == </span><span class="s1">name </span><span class="s0">and </span><span class="s1">row</span><span class="s2">[</span><span class="s5">0</span><span class="s2">] != </span><span class="s1">exclude_name </span><span class="s0">for </span><span class="s1">row </span><span class="s0">in </span><span class="s1">students_data</span><span class="s2">):</span>
+                    <span class="s0">return None</span>
+            <span class="s0">else</span><span class="s2">:</span>
+                <span class="s0">if </span><span class="s1">any</span><span class="s2">(</span><span class="s1">row</span><span class="s2">[</span><span class="s5">0</span><span class="s2">] == </span><span class="s1">name </span><span class="s0">for </span><span class="s1">row </span><span class="s0">in </span><span class="s1">students_data</span><span class="s2">):</span>
+                    <span class="s0">return None</span>
+
+            <span class="s0">return </span><span class="s1">total_grade</span>
+        <span class="s0">else</span><span class="s2">:</span>
+            <span class="s0">return None</span>
+    <span class="s0">except </span><span class="s1">ValueError</span><span class="s2">:</span>
+        <span class="s0">return None</span>
+
+
+<span class="s3"># Function to rank students based on total grades</span>
+<span class="s0">def </span><span class="s1">rank_students</span><span class="s2">():</span>
+    <span class="s1">rank_students_list</span><span class="s2">: </span><span class="s1">list</span><span class="s2">[</span><span class="s1">Any</span><span class="s2">] = </span><span class="s1">copy</span><span class="s2">.</span><span class="s1">deepcopy</span><span class="s2">(</span><span class="s1">students_data</span><span class="s2">)</span>
+    <span class="s1">n </span><span class="s2">= </span><span class="s1">len</span><span class="s2">(</span><span class="s1">rank_students_list</span><span class="s2">)</span>
+    <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s1">n </span><span class="s2">- </span><span class="s5">1</span><span class="s2">):</span>
+        <span class="s0">for </span><span class="s1">j </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s1">n </span><span class="s2">- </span><span class="s1">i </span><span class="s2">- </span><span class="s5">1</span><span class="s2">):</span>
+            <span class="s0">if </span><span class="s1">int</span><span class="s2">(</span><span class="s1">rank_students_list</span><span class="s2">[</span><span class="s1">j</span><span class="s2">][</span><span class="s5">4</span><span class="s2">]) &lt; </span><span class="s1">int</span><span class="s2">(</span><span class="s1">rank_students_list</span><span class="s2">[</span><span class="s1">j </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">][</span><span class="s5">4</span><span class="s2">]):</span>
+                <span class="s1">rank_students_list</span><span class="s2">[</span><span class="s1">j</span><span class="s2">], </span><span class="s1">rank_students_list</span><span class="s2">[</span><span class="s1">j </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">] = </span><span class="s1">rank_students_list</span><span class="s2">[</span><span class="s1">j </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">], </span><span class="s1">rank_students_list</span><span class="s2">[</span><span class="s1">j</span><span class="s2">]</span>
+
+    <span class="s0">return </span><span class="s1">rank_students_list</span>
+
+
+<span class="s3"># Function to update student numbers based on grades for plotting the bar graph</span>
+<span class="s0">def </span><span class="s1">update_student_numbers</span><span class="s2">(</span><span class="s1">ranking</span><span class="s2">: </span><span class="s1">List</span><span class="s2">[</span><span class="s1">List</span><span class="s2">[</span><span class="s1">str</span><span class="s2">]]):</span>
+    <span class="s3"># Calculate total grades from rank_students_list</span>
+    <span class="s1">student_total_grades </span><span class="s2">= []  </span><span class="s3"># new list</span>
+    <span class="s1">grade_count </span><span class="s2">= {</span><span class="s4">'A'</span><span class="s2">: </span><span class="s5">0</span><span class="s2">, </span><span class="s4">'B'</span><span class="s2">: </span><span class="s5">0</span><span class="s2">, </span><span class="s4">'C'</span><span class="s2">: </span><span class="s5">0</span><span class="s2">, </span><span class="s4">'D'</span><span class="s2">: </span><span class="s5">0</span><span class="s2">, </span><span class="s4">'E'</span><span class="s2">: </span><span class="s5">0</span><span class="s2">, </span><span class="s4">'F'</span><span class="s2">: </span><span class="s5">0</span><span class="s2">}  </span><span class="s3"># create a new dictionary for the grades</span>
+
+    <span class="s3"># total grades from rank_students_list</span>
+    <span class="s0">for </span><span class="s1">row </span><span class="s0">in </span><span class="s1">ranking</span><span class="s2">:</span>
+        <span class="s1">total_grade </span><span class="s2">= </span><span class="s1">row</span><span class="s2">[</span><span class="s5">4</span><span class="s2">]</span>
+        <span class="s1">student_total_grades</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s1">total_grade</span><span class="s2">)</span>
+
+    <span class="s0">for </span><span class="s1">total_grade </span><span class="s0">in </span><span class="s1">student_total_grades</span><span class="s2">:</span>
+        <span class="s1">total_grade </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">total_grade</span><span class="s2">)  </span><span class="s3"># Convert the total grade to an integer</span>
+        <span class="s0">if </span><span class="s1">total_grade </span><span class="s2">&gt;= </span><span class="s5">90</span><span class="s2">:</span>
+            <span class="s1">grade_count</span><span class="s2">[</span><span class="s4">'A'</span><span class="s2">] += </span><span class="s5">1</span>
+        <span class="s0">elif </span><span class="s1">total_grade </span><span class="s2">&gt;= </span><span class="s5">80</span><span class="s2">:</span>
+            <span class="s1">grade_count</span><span class="s2">[</span><span class="s4">'B'</span><span class="s2">] += </span><span class="s5">1</span>
+        <span class="s0">elif </span><span class="s1">total_grade </span><span class="s2">&gt;= </span><span class="s5">70</span><span class="s2">:</span>
+            <span class="s1">grade_count</span><span class="s2">[</span><span class="s4">'C'</span><span class="s2">] += </span><span class="s5">1</span>
+        <span class="s0">elif </span><span class="s1">total_grade </span><span class="s2">&gt;= </span><span class="s5">60</span><span class="s2">:</span>
+            <span class="s1">grade_count</span><span class="s2">[</span><span class="s4">'D'</span><span class="s2">] += </span><span class="s5">1</span>
+        <span class="s0">elif </span><span class="s1">total_grade </span><span class="s2">&gt;= </span><span class="s5">50</span><span class="s2">:</span>
+            <span class="s1">grade_count</span><span class="s2">[</span><span class="s4">'E'</span><span class="s2">] += </span><span class="s5">1</span>
+        <span class="s0">else</span><span class="s2">:</span>
+            <span class="s1">grade_count</span><span class="s2">[</span><span class="s4">'F'</span><span class="s2">] += </span><span class="s5">1</span>
+
+    <span class="s3"># create a loop that will add the corresponding student numbers per grade, then create 'student numbers' array with correct positioning</span>
+    <span class="s1">n </span><span class="s2">= </span><span class="s1">len</span><span class="s2">(</span><span class="s1">grade</span><span class="s2">)</span>
+    <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s1">n</span><span class="s2">):</span>
+        <span class="s0">for </span><span class="s1">j </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s1">n </span><span class="s2">- </span><span class="s1">i </span><span class="s2">- </span><span class="s5">1</span><span class="s2">):</span>
+            <span class="s0">if </span><span class="s1">grade</span><span class="s2">[</span><span class="s1">j</span><span class="s2">] &gt; </span><span class="s1">grade</span><span class="s2">[</span><span class="s1">j </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">]:</span>
+                <span class="s1">grade</span><span class="s2">[</span><span class="s1">j</span><span class="s2">], </span><span class="s1">grade</span><span class="s2">[</span><span class="s1">j </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">] = </span><span class="s1">grade</span><span class="s2">[</span><span class="s1">j </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">], </span><span class="s1">grade</span><span class="s2">[</span><span class="s1">j</span><span class="s2">]</span>
+
+    <span class="s1">student_numbers </span><span class="s2">= [</span><span class="s1">grade_count</span><span class="s2">[</span><span class="s1">grade</span><span class="s2">] </span><span class="s0">for </span><span class="s1">grade </span><span class="s0">in </span><span class="s1">grade</span><span class="s2">]</span>
+
+    <span class="s0">return </span><span class="s1">student_numbers</span>
+
+
+<span class="s3"># function for creating the bargraph that will visualize the rankings in Letter grades,</span>
+<span class="s3"># by plotting grades A-F in the x axis and the number of students in that criteria in the y axis</span>
+<span class="s0">def </span><span class="s1">create_bar_graph</span><span class="s2">(</span><span class="s1">grade</span><span class="s2">: </span><span class="s1">List</span><span class="s2">[</span><span class="s1">str</span><span class="s2">], </span><span class="s1">student_numbers</span><span class="s2">: </span><span class="s1">List</span><span class="s2">[</span><span class="s1">int</span><span class="s2">]):</span>
+    <span class="s1">plt</span><span class="s2">.</span><span class="s1">figure</span><span class="s2">(</span><span class="s1">figsize</span><span class="s2">=(</span><span class="s5">4</span><span class="s2">, </span><span class="s5">2.5</span><span class="s2">), </span><span class="s1">facecolor</span><span class="s2">=</span><span class="s4">'#AAB6D3'</span><span class="s2">)</span>
+    <span class="s1">ax </span><span class="s2">= </span><span class="s1">plt</span><span class="s2">.</span><span class="s1">axes</span><span class="s2">()</span>
+    <span class="s1">ax</span><span class="s2">.</span><span class="s1">set_facecolor</span><span class="s2">(</span><span class="s4">&quot;white&quot;</span><span class="s2">)</span>
+    <span class="s1">plt</span><span class="s2">.</span><span class="s1">bar</span><span class="s2">(</span><span class="s1">grade</span><span class="s2">, </span><span class="s1">student_numbers</span><span class="s2">, </span><span class="s1">color</span><span class="s2">=</span><span class="s4">'red'</span><span class="s2">, </span><span class="s1">width</span><span class="s2">=</span><span class="s5">0.4</span><span class="s2">)</span>
+    <span class="s1">plt</span><span class="s2">.</span><span class="s1">title</span><span class="s2">(</span><span class="s4">'Grade vs Student Number'</span><span class="s2">, </span><span class="s1">fontsize</span><span class="s2">=</span><span class="s5">10</span><span class="s2">)</span>
+    <span class="s1">plt</span><span class="s2">.</span><span class="s1">xlabel</span><span class="s2">(</span><span class="s4">'Grade'</span><span class="s2">, </span><span class="s1">fontsize</span><span class="s2">=</span><span class="s5">10</span><span class="s2">)</span>
+    <span class="s1">plt</span><span class="s2">.</span><span class="s1">ylabel</span><span class="s2">(</span><span class="s4">'Student Number'</span><span class="s2">, </span><span class="s1">fontsize</span><span class="s2">=</span><span class="s5">10</span><span class="s2">)</span>
+    <span class="s1">plt</span><span class="s2">.</span><span class="s1">subplots_adjust</span><span class="s2">(</span><span class="s1">top</span><span class="s2">=</span><span class="s5">0.9</span><span class="s2">, </span><span class="s1">bottom</span><span class="s2">=</span><span class="s5">0.2</span><span class="s2">)</span>
+
+    <span class="s0">return </span><span class="s1">plt</span><span class="s2">.</span><span class="s1">gcf</span><span class="s2">()</span>
+
+<span class="s3"># forget the old graph and draws a new graph with the new data</span>
+<span class="s0">def </span><span class="s1">update_bar_graph</span><span class="s2">(</span><span class="s1">bar_graph</span><span class="s2">:</span><span class="s1">FigureCanvasTkAgg</span><span class="s2">):</span>
+    <span class="s1">bar_graph</span><span class="s2">.</span><span class="s1">get_tk_widget</span><span class="s2">().</span><span class="s1">forget</span><span class="s2">()  </span><span class="s3"># forgets bar_graph</span>
+    <span class="s1">bar_graph </span><span class="s2">= </span><span class="s1">draw_figure</span><span class="s2">(</span><span class="s1">data_window</span><span class="s2">[</span><span class="s4">&quot;bar-graph&quot;</span><span class="s2">].</span><span class="s1">TKCanvas</span><span class="s2">, </span><span class="s1">create_bar_graph</span><span class="s2">(</span><span class="s1">grade</span><span class="s2">, </span><span class="s1">student_numbers</span><span class="s2">))</span>
+    <span class="s0">return </span><span class="s1">bar_graph</span>
+
+<span class="s3"># Now we are done with declaring our global functions, now this is the main body of the code.</span>
+
+<span class="s3"># import PysimpleGui Themes, and set the theme to a prettier light blue</span>
+<span class="s1">sg</span><span class="s2">.</span><span class="s1">theme</span><span class="s2">(</span><span class="s4">'LightBlue2'</span><span class="s2">)</span>
+
+<span class="s3"># Load data from file using the load_data procedure.</span>
+<span class="s1">students_data </span><span class="s2">= </span><span class="s1">load_data_from_file</span><span class="s2">()</span>
+
+<span class="s3"># rank the students using the imported data , so it shows the initial ranking when we open the code. This will change whenever the user makes a change in the program.</span>
+<span class="s1">ranking_1 </span><span class="s2">= </span><span class="s1">rank_students</span><span class="s2">()</span>
+
+<span class="s3"># for loop to add to the new tab 3 list the rankings of the students</span>
+<span class="s0">for </span><span class="s1">index</span><span class="s2">, </span><span class="s1">row </span><span class="s0">in </span><span class="s1">enumerate</span><span class="s2">(</span><span class="s1">ranking_1</span><span class="s2">):</span>
+    <span class="s1">tab_3_list</span><span class="s2">.</span><span class="s1">append</span><span class="s2">([</span><span class="s1">str</span><span class="s2">(</span><span class="s1">index </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">), </span><span class="s1">row</span><span class="s2">[</span><span class="s5">0</span><span class="s2">], </span><span class="s1">row</span><span class="s2">[</span><span class="s5">4</span><span class="s2">], </span><span class="s1">row</span><span class="s2">[</span><span class="s5">5</span><span class="s2">]])</span>
+
+<span class="s3"># Prepare data for bar graph</span>
+<span class="s1">student_numbers </span><span class="s2">= </span><span class="s1">update_student_numbers</span><span class="s2">(</span><span class="s1">ranking_1</span><span class="s2">)</span>
+
+<span class="s3"># Layout for Tab 1 where you input  new students, added paddings so they align to each other more neatly.</span>
+<span class="s1">tab1_layout </span><span class="s2">= [</span>
+    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Text</span><span class="s2">(</span><span class="s4">'Student name'</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">InputText</span><span class="s2">(</span><span class="s1">key</span><span class="s2">=</span><span class="s4">&quot;count-name&quot;</span><span class="s2">, </span><span class="s1">size</span><span class="s2">=(</span><span class="s5">15</span><span class="s2">, </span><span class="s5">0</span><span class="s2">), </span><span class="s1">pad</span><span class="s2">=(</span><span class="s5">20</span><span class="s2">, </span><span class="s5">0</span><span class="s2">))],</span>
+    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Text</span><span class="s2">(</span><span class="s4">'Homework grade'</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">InputText</span><span class="s2">(</span><span class="s1">key</span><span class="s2">=</span><span class="s4">&quot;homework-grade&quot;</span><span class="s2">, </span><span class="s1">size</span><span class="s2">=(</span><span class="s5">15</span><span class="s2">, </span><span class="s5">0</span><span class="s2">))],</span>
+    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Text</span><span class="s2">(</span><span class="s4">'Midterm grade'</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">InputText</span><span class="s2">(</span><span class="s1">key</span><span class="s2">=</span><span class="s4">&quot;midterm-grade&quot;</span><span class="s2">, </span><span class="s1">size</span><span class="s2">=(</span><span class="s5">15</span><span class="s2">, </span><span class="s5">0</span><span class="s2">), </span><span class="s1">pad</span><span class="s2">=(</span><span class="s5">17</span><span class="s2">, </span><span class="s5">0</span><span class="s2">))],</span>
+    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Text</span><span class="s2">(</span><span class="s4">'Final grade'</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">InputText</span><span class="s2">(</span><span class="s1">key</span><span class="s2">=</span><span class="s4">&quot;final-grade&quot;</span><span class="s2">, </span><span class="s1">size</span><span class="s2">=(</span><span class="s5">15</span><span class="s2">, </span><span class="s5">0</span><span class="s2">), </span><span class="s1">pad</span><span class="s2">=(</span><span class="s5">32</span><span class="s2">, </span><span class="s5">0</span><span class="s2">))],</span>
+    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Button</span><span class="s2">(</span><span class="s4">&quot;Add Student&quot;</span><span class="s2">)]</span>
+<span class="s2">]</span>
+
+<span class="s3"># Layout for Tab 2 that shows the students in the students_data list,</span>
+<span class="s3"># this is where the user can edit the students, delete them and sort them in alphabetical order</span>
+<span class="s1">tab2_layout </span><span class="s2">= [</span>
+    <span class="s2">[</span>
+        <span class="s1">sg</span><span class="s2">.</span><span class="s1">Table</span><span class="s2">(</span>
+            <span class="s1">values</span><span class="s2">=</span><span class="s1">students_data</span><span class="s2">,</span>
+            <span class="s1">headings</span><span class="s2">=[</span><span class="s4">&quot;Name&quot;</span><span class="s2">, </span><span class="s4">&quot;Homework Grade&quot;</span><span class="s2">, </span><span class="s4">&quot;Midterm Grade&quot;</span><span class="s2">, </span><span class="s4">&quot;Final Grade&quot;</span><span class="s2">, </span><span class="s4">&quot;Total Grade&quot;</span><span class="s2">],</span>
+            <span class="s1">key</span><span class="s2">=</span><span class="s4">&quot;students-table&quot;</span><span class="s2">,</span>
+            <span class="s1">col_widths</span><span class="s2">=[</span><span class="s5">20</span><span class="s2">, </span><span class="s5">15</span><span class="s2">, </span><span class="s5">15</span><span class="s2">, </span><span class="s5">15</span><span class="s2">, </span><span class="s5">15</span><span class="s2">, </span><span class="s5">15</span><span class="s2">],</span>
+            <span class="s1">justification</span><span class="s2">=</span><span class="s4">&quot;center&quot;</span><span class="s2">,</span>
+            <span class="s1">num_rows</span><span class="s2">=</span><span class="s5">10</span><span class="s2">,</span>
+            <span class="s1">enable_events</span><span class="s2">=</span><span class="s0">True</span><span class="s2">,</span>
+            <span class="s1">bind_return_key</span><span class="s2">=</span><span class="s0">True</span><span class="s2">,</span>
+            <span class="s1">auto_size_columns</span><span class="s2">=</span><span class="s0">False</span><span class="s2">,</span>
+            <span class="s1">display_row_numbers</span><span class="s2">=</span><span class="s0">False</span><span class="s2">,</span>
+            <span class="s1">font</span><span class="s2">=(</span><span class="s4">&quot;Helvetica&quot;</span><span class="s2">, </span><span class="s5">16</span><span class="s2">),</span>
+            <span class="s1">expand_x</span><span class="s2">=</span><span class="s0">True</span>
+        <span class="s2">)</span>
+    <span class="s2">],</span>
+    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Button</span><span class="s2">(</span><span class="s4">&quot;-&quot;</span><span class="s2">, </span><span class="s1">key</span><span class="s2">=</span><span class="s4">&quot;delete-button&quot;</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Button</span><span class="s2">(</span><span class="s4">&quot;Edit&quot;</span><span class="s2">, </span><span class="s1">key</span><span class="s2">=</span><span class="s4">&quot;edit-students&quot;</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Button</span><span class="s2">(</span><span class="s4">&quot;Sort&quot;</span><span class="s2">, </span><span class="s1">key</span><span class="s2">=</span><span class="s4">&quot;sort-button&quot;</span><span class="s2">)]</span>
+
+<span class="s2">]</span>
+
+<span class="s3"># Layout for Tab 3 that ranks the students</span>
+<span class="s3"># This page automatically updates every loop until the program is closed.</span>
+<span class="s1">tab3_layout </span><span class="s2">= [</span>
+    <span class="s2">[</span>
+        <span class="s1">sg</span><span class="s2">.</span><span class="s1">Table</span><span class="s2">(</span>
+            <span class="s1">values</span><span class="s2">=</span><span class="s1">tab_3_list</span><span class="s2">,</span>
+            <span class="s1">headings</span><span class="s2">=[</span><span class="s4">&quot;Rank&quot;</span><span class="s2">, </span><span class="s4">&quot;Name&quot;</span><span class="s2">, </span><span class="s4">&quot;Total Grade&quot;</span><span class="s2">, </span><span class="s4">&quot;Letter Grade&quot;</span><span class="s2">],</span>
+            <span class="s1">key</span><span class="s2">=</span><span class="s4">&quot;ranked-students-table&quot;</span><span class="s2">,</span>
+            <span class="s1">justification</span><span class="s2">=</span><span class="s4">&quot;center&quot;</span><span class="s2">,</span>
+            <span class="s1">col_widths</span><span class="s2">=[</span><span class="s5">10</span><span class="s2">, </span><span class="s5">20</span><span class="s2">, </span><span class="s5">15</span><span class="s2">, </span><span class="s5">15</span><span class="s2">],</span>
+            <span class="s1">num_rows</span><span class="s2">=</span><span class="s5">10</span><span class="s2">,</span>
+            <span class="s1">enable_events</span><span class="s2">=</span><span class="s0">True</span><span class="s2">,</span>
+            <span class="s1">bind_return_key</span><span class="s2">=</span><span class="s0">True</span><span class="s2">,</span>
+            <span class="s1">auto_size_columns</span><span class="s2">=</span><span class="s0">False</span><span class="s2">,</span>
+            <span class="s1">display_row_numbers</span><span class="s2">=</span><span class="s0">False</span><span class="s2">,  </span><span class="s3"># we want to rank the students not in row #</span>
+            <span class="s1">font</span><span class="s2">=(</span><span class="s4">&quot;Helvetica&quot;</span><span class="s2">, </span><span class="s5">16</span><span class="s2">),</span>
+            <span class="s1">expand_x</span><span class="s2">=</span><span class="s0">True</span>
+
+        <span class="s2">)</span>
+    <span class="s2">]</span>
+<span class="s2">]</span>
+
+<span class="s3"># layout for tab 4 that draws a canvas for the visual histogram.</span>
+<span class="s3"># This helps the viewer see a normal distribution, and the bell curve of the grades.</span>
+<span class="s1">tab4_layout </span><span class="s2">= [</span>
+    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Column</span><span class="s2">([[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Canvas</span><span class="s2">(</span><span class="s1">key</span><span class="s2">=</span><span class="s4">'bar-graph'</span><span class="s2">, </span><span class="s1">size</span><span class="s2">=(</span><span class="s5">400</span><span class="s2">, </span><span class="s5">400</span><span class="s2">))]], </span><span class="s1">element_justification</span><span class="s2">=</span><span class="s4">'center'</span><span class="s2">, </span><span class="s1">pad</span><span class="s2">=(</span><span class="s5">150</span><span class="s2">, </span><span class="s5">100</span><span class="s2">))]</span>
+<span class="s2">]</span>
+
+<span class="s3"># Create the main window with tabs</span>
+<span class="s1">data_layout </span><span class="s2">= [</span>
+    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">TabGroup</span><span class="s2">([</span>
+        <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Tab</span><span class="s2">(</span><span class="s4">'Add Students'</span><span class="s2">, </span><span class="s1">tab1_layout</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Tab</span><span class="s2">(</span><span class="s4">'View Students'</span><span class="s2">, </span><span class="s1">tab2_layout</span><span class="s2">),</span>
+         <span class="s1">sg</span><span class="s2">.</span><span class="s1">Tab</span><span class="s2">(</span><span class="s4">'Student Ranking'</span><span class="s2">, </span><span class="s1">tab3_layout</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Tab</span><span class="s2">(</span><span class="s4">'Graph'</span><span class="s2">, </span><span class="s1">tab4_layout</span><span class="s2">)]</span>
+    <span class="s2">], </span><span class="s1">enable_events</span><span class="s2">=</span><span class="s0">True</span><span class="s2">, </span><span class="s1">expand_x</span><span class="s2">=</span><span class="s0">True</span><span class="s2">, </span><span class="s1">expand_y</span><span class="s2">=</span><span class="s0">True</span><span class="s2">)]]</span>
+
+<span class="s3"># imports the password window to prevent access to the code from an unauthorized person</span>
+<span class="s1">password_window</span><span class="s2">.</span><span class="s1">protect</span><span class="s2">()</span>
+
+<span class="s3"># sets the window layout. Finalize=True is needed for the matplotlib graph.</span>
+<span class="s1">data_window </span><span class="s2">= </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Window</span><span class="s2">(</span><span class="s4">&quot;Student DB&quot;</span><span class="s2">, </span><span class="s1">data_layout</span><span class="s2">, </span><span class="s1">modal</span><span class="s2">=</span><span class="s0">True</span><span class="s2">, </span><span class="s1">resizable</span><span class="s2">=</span><span class="s0">True</span><span class="s2">, </span><span class="s1">finalize</span><span class="s2">=</span><span class="s0">True</span><span class="s2">)</span>
+<span class="s3"># Load data from file</span>
+<span class="s1">students_data </span><span class="s2">= </span><span class="s1">load_data_from_file</span><span class="s2">()</span>
+
+<span class="s3"># draws the first bar-graph,so it doesn't override the password window</span>
+<span class="s1">bar_graph </span><span class="s2">= </span><span class="s1">draw_figure</span><span class="s2">(</span><span class="s1">data_window</span><span class="s2">[</span><span class="s4">&quot;bar-graph&quot;</span><span class="s2">].</span><span class="s1">TKCanvas</span><span class="s2">, </span><span class="s1">create_bar_graph</span><span class="s2">(</span><span class="s1">grade</span><span class="s2">, </span><span class="s1">student_numbers</span><span class="s2">))</span>
+
+
+<span class="s3"># Event loop</span>
+<span class="s0">while True</span><span class="s2">:</span>
+
+    <span class="s1">event</span><span class="s2">, </span><span class="s1">values </span><span class="s2">= </span><span class="s1">data_window</span><span class="s2">.</span><span class="s1">read</span><span class="s2">()</span>
+
+    <span class="s0">if </span><span class="s1">event </span><span class="s2">== </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">WINDOW_CLOSED</span><span class="s2">:</span>
+        <span class="s3"># Save data to file when closing the window</span>
+        <span class="s1">save_data_to_file</span><span class="s2">(</span><span class="s1">students_data</span><span class="s2">)</span>
+        <span class="s0">break</span>
+    <span class="s3"># When the user clicks add student, it assigns the variables to the values and gives them keys to be checked later if the vlaues are correct.</span>
+    <span class="s0">if </span><span class="s1">event </span><span class="s2">== </span><span class="s4">&quot;Add Student&quot;</span><span class="s2">:</span>
+        <span class="s1">name </span><span class="s2">= </span><span class="s1">values</span><span class="s2">[</span><span class="s4">&quot;count-name&quot;</span><span class="s2">]</span>
+        <span class="s1">homework_grade </span><span class="s2">= </span><span class="s1">values</span><span class="s2">[</span><span class="s4">&quot;homework-grade&quot;</span><span class="s2">]</span>
+        <span class="s1">midterm_grade </span><span class="s2">= </span><span class="s1">values</span><span class="s2">[</span><span class="s4">&quot;midterm-grade&quot;</span><span class="s2">]</span>
+        <span class="s1">final_grade </span><span class="s2">= </span><span class="s1">values</span><span class="s2">[</span><span class="s4">&quot;final-grade&quot;</span><span class="s2">]</span>
+        <span class="s3"># uses the grading students function to see if the values are valid and if not, pops up a error message.</span>
+        <span class="s3"># If the values are valid, appends the new student to the students data list and refreshes the window.</span>
+        <span class="s1">total_grade </span><span class="s2">= </span><span class="s1">grading_students</span><span class="s2">(</span><span class="s1">name</span><span class="s2">, </span><span class="s1">homework_grade</span><span class="s2">, </span><span class="s1">midterm_grade</span><span class="s2">, </span><span class="s1">final_grade</span><span class="s2">)</span>
+        <span class="s0">if </span><span class="s1">total_grade </span><span class="s0">is None</span><span class="s2">:</span>
+            <span class="s1">sg</span><span class="s2">.</span><span class="s1">popup_error</span><span class="s2">(</span>
+                <span class="s4">&quot;Please check if your input is correct&quot;</span><span class="s2">,</span>
+                <span class="s1">title</span><span class="s2">=</span><span class="s4">&quot;Error&quot;</span><span class="s2">,</span>
+                <span class="s1">button_color</span><span class="s2">=</span><span class="s4">&quot;red&quot;</span><span class="s2">,</span>
+            <span class="s2">)</span>
+        <span class="s0">else</span><span class="s2">:</span>
+            <span class="s1">letter_grade </span><span class="s2">= </span><span class="s1">convert_to_letter_grade</span><span class="s2">(</span><span class="s1">total_grade</span><span class="s2">)</span>
+            <span class="s1">students_data</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span>
+                <span class="s2">[</span><span class="s1">name</span><span class="s2">, </span><span class="s1">homework_grade</span><span class="s2">, </span><span class="s1">midterm_grade</span><span class="s2">, </span><span class="s1">final_grade</span><span class="s2">, </span><span class="s1">str</span><span class="s2">(</span><span class="s1">total_grade</span><span class="s2">), </span><span class="s1">letter_grade</span><span class="s2">])</span>
+            <span class="s1">data_window</span><span class="s2">[</span><span class="s4">&quot;students-table&quot;</span><span class="s2">].</span><span class="s1">update</span><span class="s2">(</span><span class="s1">values</span><span class="s2">=</span><span class="s1">students_data</span><span class="s2">)</span>
+            <span class="s1">data_window</span><span class="s2">[</span><span class="s4">&quot;count-name&quot;</span><span class="s2">].</span><span class="s1">update</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">)  </span><span class="s3"># Clear the name input field</span>
+            <span class="s1">data_window</span><span class="s2">[</span><span class="s4">&quot;homework-grade&quot;</span><span class="s2">].</span><span class="s1">update</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">)  </span><span class="s3"># Clear the homework grade input field</span>
+            <span class="s1">data_window</span><span class="s2">[</span><span class="s4">&quot;midterm-grade&quot;</span><span class="s2">].</span><span class="s1">update</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">)  </span><span class="s3"># Clear the midterm grade input field</span>
+            <span class="s1">data_window</span><span class="s2">[</span><span class="s4">&quot;final-grade&quot;</span><span class="s2">].</span><span class="s1">update</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">)  </span><span class="s3"># Clear the final grade input field</span>
+    <span class="s3"># enables the user to select the tables</span>
+    <span class="s0">if </span><span class="s1">event </span><span class="s2">== </span><span class="s4">&quot;students-table&quot;</span><span class="s2">:</span>
+        <span class="s1">selected_row </span><span class="s2">= </span><span class="s1">values</span><span class="s2">[</span><span class="s4">&quot;students-table&quot;</span><span class="s2">]</span>
+        <span class="s0">if </span><span class="s1">selected_row</span><span class="s2">:</span>
+            <span class="s1">selected_row_index </span><span class="s2">= </span><span class="s1">selected_row</span><span class="s2">[</span><span class="s5">0</span><span class="s2">]</span>
+            <span class="s0">if </span><span class="s1">selected_row_index </span><span class="s2">&lt; </span><span class="s1">len</span><span class="s2">(</span><span class="s1">students_data</span><span class="s2">):</span>
+                <span class="s1">name </span><span class="s2">= </span><span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">0</span><span class="s2">]</span>
+                <span class="s1">homework_grade </span><span class="s2">= </span><span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">1</span><span class="s2">]</span>
+                <span class="s1">midterm_grade </span><span class="s2">= </span><span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">2</span><span class="s2">]</span>
+                <span class="s1">final_grade </span><span class="s2">= </span><span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">3</span><span class="s2">]</span>
+    <span class="s3"># when the user clicks the sort button, sorts the names in alphabetical order</span>
+    <span class="s0">if </span><span class="s1">event </span><span class="s2">== </span><span class="s4">&quot;sort-button&quot;</span><span class="s2">:</span>
+        <span class="s1">bubble_sort</span><span class="s2">(</span><span class="s1">students_data</span><span class="s2">)</span>
+        <span class="s1">data_window</span><span class="s2">[</span><span class="s4">&quot;students-table&quot;</span><span class="s2">].</span><span class="s1">update</span><span class="s2">(</span><span class="s1">values</span><span class="s2">=</span><span class="s1">students_data</span><span class="s2">)</span>
+    <span class="s3"># when the user clicks the delete button, the program deletes the selected student's data from the file</span>
+    <span class="s0">if </span><span class="s1">event </span><span class="s2">== </span><span class="s4">&quot;delete-button&quot;</span><span class="s2">:</span>
+        <span class="s1">selected_row </span><span class="s2">= </span><span class="s1">values</span><span class="s2">[</span><span class="s4">&quot;students-table&quot;</span><span class="s2">]</span>
+        <span class="s0">if </span><span class="s1">selected_row</span><span class="s2">:</span>
+            <span class="s1">selected_row_index </span><span class="s2">= </span><span class="s1">selected_row</span><span class="s2">[</span><span class="s5">0</span><span class="s2">]</span>
+            <span class="s0">if </span><span class="s1">selected_row_index </span><span class="s2">&lt; </span><span class="s1">len</span><span class="s2">(</span><span class="s1">students_data</span><span class="s2">):</span>
+                <span class="s1">removed_row </span><span class="s2">= </span><span class="s1">students_data</span><span class="s2">.</span><span class="s1">pop</span><span class="s2">(</span><span class="s1">selected_row_index</span><span class="s2">)</span>
+                <span class="s1">data_window</span><span class="s2">[</span><span class="s4">&quot;students-table&quot;</span><span class="s2">].</span><span class="s1">update</span><span class="s2">(</span><span class="s1">values</span><span class="s2">=</span><span class="s1">students_data</span><span class="s2">)</span>
+    <span class="s3"># when the user clicks on the edit button, creates a new edit window that saves the changes and updates it to student_data and represents it on tab 2 and 3</span>
+    <span class="s0">if </span><span class="s1">event </span><span class="s2">== </span><span class="s4">&quot;edit-students&quot;</span><span class="s2">:</span>
+        <span class="s1">selected_edit_row </span><span class="s2">= </span><span class="s1">values</span><span class="s2">[</span><span class="s4">&quot;students-table&quot;</span><span class="s2">]</span>
+        <span class="s0">if </span><span class="s1">selected_edit_row</span><span class="s2">:</span>
+            <span class="s1">selected_row_index </span><span class="s2">= </span><span class="s1">selected_edit_row</span><span class="s2">[</span><span class="s5">0</span><span class="s2">]</span>
+            <span class="s0">if </span><span class="s1">selected_row_index </span><span class="s2">&lt; </span><span class="s1">len</span><span class="s2">(</span><span class="s1">students_data</span><span class="s2">):</span>
+                <span class="s1">name </span><span class="s2">= </span><span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">0</span><span class="s2">]</span>
+                <span class="s1">homework_grade </span><span class="s2">= </span><span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">1</span><span class="s2">]</span>
+                <span class="s1">midterm_grade </span><span class="s2">= </span><span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">2</span><span class="s2">]</span>
+                <span class="s1">final_grade </span><span class="s2">= </span><span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">3</span><span class="s2">]</span>
+                <span class="s1">edit_layout </span><span class="s2">= [</span>
+                    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Text</span><span class="s2">(</span><span class="s4">'Name:'</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Input</span><span class="s2">(</span><span class="s1">key</span><span class="s2">=</span><span class="s4">'edit-name'</span><span class="s2">, </span><span class="s1">default_text</span><span class="s2">=</span><span class="s1">name</span><span class="s2">)],</span>
+                    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Text</span><span class="s2">(</span><span class="s4">'Homework Grade:'</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Input</span><span class="s2">(</span><span class="s1">key</span><span class="s2">=</span><span class="s4">'edit-homework'</span><span class="s2">, </span><span class="s1">default_text</span><span class="s2">=</span><span class="s1">homework_grade</span><span class="s2">)],</span>
+                    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Text</span><span class="s2">(</span><span class="s4">'Midterm Grade:'</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Input</span><span class="s2">(</span><span class="s1">key</span><span class="s2">=</span><span class="s4">'edit-midterm'</span><span class="s2">, </span><span class="s1">default_text</span><span class="s2">=</span><span class="s1">midterm_grade</span><span class="s2">)],</span>
+                    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Text</span><span class="s2">(</span><span class="s4">'Final Grade:'</span><span class="s2">), </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Input</span><span class="s2">(</span><span class="s1">key</span><span class="s2">=</span><span class="s4">'edit-final'</span><span class="s2">, </span><span class="s1">default_text</span><span class="s2">=</span><span class="s1">final_grade</span><span class="s2">)],</span>
+                    <span class="s2">[</span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Button</span><span class="s2">(</span><span class="s4">'Save'</span><span class="s2">)]</span>
+                <span class="s2">]</span>
+
+                <span class="s1">edit_window </span><span class="s2">= </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">Window</span><span class="s2">(</span><span class="s4">'Edit Student'</span><span class="s2">, </span><span class="s1">edit_layout</span><span class="s2">)</span>
+                <span class="s3"># new edit window</span>
+                <span class="s0">while True</span><span class="s2">:</span>
+                    <span class="s1">edit_event</span><span class="s2">, </span><span class="s1">edit_values </span><span class="s2">= </span><span class="s1">edit_window</span><span class="s2">.</span><span class="s1">read</span><span class="s2">()</span>
+
+                    <span class="s0">if </span><span class="s1">edit_event </span><span class="s2">== </span><span class="s1">sg</span><span class="s2">.</span><span class="s1">WINDOW_CLOSED</span><span class="s2">:</span>
+                        <span class="s0">break</span>
+                    <span class="s3"># This is the button that allows the new changes to be saved</span>
+                    <span class="s0">if </span><span class="s1">edit_event </span><span class="s2">== </span><span class="s4">'Save'</span><span class="s2">:</span>
+                        <span class="s1">new_name </span><span class="s2">= </span><span class="s1">edit_values</span><span class="s2">[</span><span class="s4">'edit-name'</span><span class="s2">]</span>
+                        <span class="s1">new_homework_grade </span><span class="s2">= </span><span class="s1">edit_values</span><span class="s2">[</span><span class="s4">'edit-homework'</span><span class="s2">]</span>
+                        <span class="s1">new_midterm_grade </span><span class="s2">= </span><span class="s1">edit_values</span><span class="s2">[</span><span class="s4">'edit-midterm'</span><span class="s2">]</span>
+                        <span class="s1">new_final_grade </span><span class="s2">= </span><span class="s1">edit_values</span><span class="s2">[</span><span class="s4">'edit-final'</span><span class="s2">]</span>
+
+                        <span class="s3"># convert input grades to int</span>
+                        <span class="s1">new_homework_grade </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">new_homework_grade</span><span class="s2">)</span>
+                        <span class="s1">new_midterm_grade </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">new_midterm_grade</span><span class="s2">)</span>
+                        <span class="s1">new_final_grade </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">new_final_grade</span><span class="s2">)</span>
+
+                        <span class="s1">total_grade </span><span class="s2">= </span><span class="s1">grading_students</span><span class="s2">(</span><span class="s1">new_name</span><span class="s2">, </span><span class="s1">new_homework_grade</span><span class="s2">, </span><span class="s1">new_midterm_grade</span><span class="s2">, </span><span class="s1">new_final_grade</span><span class="s2">,</span>
+                                                       <span class="s1">exclude_name</span><span class="s2">=</span><span class="s1">name</span><span class="s2">)</span>
+                        <span class="s3"># If the input is invalid, pops up a error message</span>
+                        <span class="s0">if </span><span class="s1">total_grade </span><span class="s0">is None</span><span class="s2">:</span>
+                            <span class="s1">sg</span><span class="s2">.</span><span class="s1">popup_error</span><span class="s2">(</span>
+                                <span class="s4">&quot;Please check if your input is correct&quot;</span><span class="s2">,</span>
+                                <span class="s1">title</span><span class="s2">=</span><span class="s4">&quot;Error&quot;</span><span class="s2">,</span>
+                                <span class="s1">button_color</span><span class="s2">=</span><span class="s4">&quot;red&quot;</span><span class="s2">,</span>
+                            <span class="s2">)</span>
+                        <span class="s3"># swaps the changes if the inputs are corrects</span>
+                        <span class="s0">else</span><span class="s2">:</span>
+                            <span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">0</span><span class="s2">] = </span><span class="s1">new_name</span>
+                            <span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">1</span><span class="s2">] = </span><span class="s1">str</span><span class="s2">(</span><span class="s1">new_homework_grade</span><span class="s2">)</span>
+                            <span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">2</span><span class="s2">] = </span><span class="s1">str</span><span class="s2">(</span><span class="s1">new_midterm_grade</span><span class="s2">)</span>
+                            <span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">3</span><span class="s2">] = </span><span class="s1">str</span><span class="s2">(</span><span class="s1">new_final_grade</span><span class="s2">)</span>
+                            <span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">4</span><span class="s2">] = </span><span class="s1">str</span><span class="s2">(</span><span class="s1">total_grade</span><span class="s2">)</span>
+                            <span class="s1">students_data</span><span class="s2">[</span><span class="s1">selected_row_index</span><span class="s2">][</span><span class="s5">5</span><span class="s2">] = </span><span class="s1">convert_to_letter_grade</span><span class="s2">(</span><span class="s1">total_grade</span><span class="s2">)</span>
+
+                        <span class="s0">break</span>
+
+                <span class="s1">edit_window</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+    <span class="s3"># updates datawindow</span>
+    <span class="s0">if </span><span class="s1">event </span><span class="s2">!= </span><span class="s4">&quot;students-table&quot;</span><span class="s2">:</span>
+        <span class="s1">data_window</span><span class="s2">[</span><span class="s4">'students-table'</span><span class="s2">].</span><span class="s1">update</span><span class="s2">(</span><span class="s1">values</span><span class="s2">=</span><span class="s1">students_data</span><span class="s2">)</span>
+    <span class="s3"># updates the ranks of the students to be correctly shown in tab 3 when the changes are made</span>
+    <span class="s1">ranking_2 </span><span class="s2">= </span><span class="s1">rank_students</span><span class="s2">()</span>
+    <span class="s1">data_window</span><span class="s2">[</span><span class="s4">&quot;ranked-students-table&quot;</span><span class="s2">].</span><span class="s1">update</span><span class="s2">(</span>
+        <span class="s1">values</span><span class="s2">=[[</span><span class="s1">str</span><span class="s2">(</span><span class="s1">index </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">), </span><span class="s1">row</span><span class="s2">[</span><span class="s5">0</span><span class="s2">], </span><span class="s1">row</span><span class="s2">[</span><span class="s5">4</span><span class="s2">], </span><span class="s1">row</span><span class="s2">[</span><span class="s5">5</span><span class="s2">]] </span><span class="s0">for </span><span class="s1">index</span><span class="s2">, </span><span class="s1">row </span><span class="s0">in</span>
+                <span class="s1">enumerate</span><span class="s2">(</span><span class="s1">ranking_2</span><span class="s2">)])</span>
+    <span class="s3"># updates matplotlib graph based upon the new updated ranking</span>
+    <span class="s1">student_numbers </span><span class="s2">= </span><span class="s1">update_student_numbers</span><span class="s2">(</span><span class="s1">ranking_2</span><span class="s2">)</span>
+    <span class="s1">bar_graph </span><span class="s2">= </span><span class="s1">update_bar_graph</span><span class="s2">(</span><span class="s1">bar_graph</span><span class="s2">)</span>
+<span class="s1">data_window</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+</pre>
+</body>
+</html>

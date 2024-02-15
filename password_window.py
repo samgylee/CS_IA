@@ -9,7 +9,7 @@ def protect():
     # Define the layout of the password protection window
     layout = [
         [sg.Text("Enter your Email address:"), sg.Input(key="-EMAIL-", do_not_clear=False, size=(30, 1))],
-        [sg.Text("Enter Password", size=(15, 1)), sg.InputText('', key='-PASSWORD-', password_char='*', size=(15, 1))],
+        [sg.Text("Enter Password:", pad=(27, 0)), sg.InputText('', key='-PASSWORD-', password_char='*', size=(30, 1))],
         [sg.Button("Submit"), sg.Button("Exit")]
     ]
 
